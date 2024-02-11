@@ -1,3 +1,4 @@
+/*Inefficient with a double loop and multiple calls to factorial.*/
 #include <stdio.h>
 
 int factorial(int n){

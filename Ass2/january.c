@@ -1,3 +1,4 @@
+/*Using global variable instead of call by reference, overly complicated and unnecessary checks in add and delete node functions.*/
 #include <stdio.h>
 #include <stdlib.h>
 
