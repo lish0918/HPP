@@ -60,7 +60,7 @@ int main(int argc, char *argv[]) {
         tasks[j].start = j * segment_size;
         tasks[j].end = (j + 1) * segment_size;
         pthread_create(&threads[j], &attr, findrank, (void *)&tasks[j]);
-    }
+    }//把剩余的任务分配给最后一个线程，需要修改保证每个线程有均衡的任务量
 
     for (int j = 0; j < NUM_THREADS; j++) {
         pthread_join(threads[j], &status);

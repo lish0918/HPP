@@ -22,7 +22,8 @@ void* the_thread_func(void* arg) {
 
     return NULL;
 }
-
+//numerical consistency of floating numbers
+//并行时，两个浮点数相加，小数会向大数靠拢（改变指数，失精），导致最终与串行结果不一致
 int main(int argc, char *argv[]) {
   int i;
   pthread_t threads[P];
@@ -46,3 +47,5 @@ int main(int argc, char *argv[]) {
 
   return 0;
 }
+//有个循环持续相加1.0时，（例子）当sum加到10E17时，sum不再增加（1.0对它来说太小），因为浮点数的精度有限
+//因为浮点数相加先对齐

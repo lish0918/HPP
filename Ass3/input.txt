@@ -1,0 +1,40 @@
+./galsim N filename nsteps delta_t graphics
+
+N is the number of stars/particles to simulate
+filename is the filename of the file to read the initial configuration from
+nsteps is the number of timesteps
+delta_t is the timestep ∆t
+graphics is 1 or 0 meaning graphics on/off
+
+
+./galsim 100 circles_N_2.gal 200 0.00001 1
+./galsim：运行名为 galsim 的可执行文件。
+100：粒子的数量。
+circles_N_2.gal：初始配置文件的文件名，位于当前目录下或指定路径下。
+200：模拟的时间步数。
+0.00001：时间步长。
+1：用于指示是否打开图形显示，这里为打开图形显示。
+
+lish6557@LAPTOP-B927FN7A:~/HPP/Assignment3/input_data$ ls
+circles_N_2.gal      ellipse_N_00080.gal  ellipse_N_00700.gal  ellipse_N_06000.gal
+circles_N_4.gal      ellipse_N_00090.gal  ellipse_N_00800.gal  ellipse_N_07000.gal
+ellipse_N_00010.gal  ellipse_N_00100.gal  ellipse_N_00900.gal  ellipse_N_08000.gal
+ellipse_N_00020.gal  ellipse_N_00150.gal  ellipse_N_01000.gal  ellipse_N_09000.gal
+ellipse_N_00030.gal  ellipse_N_00200.gal  ellipse_N_01500.gal  ellipse_N_10000.gal
+ellipse_N_00040.gal  ellipse_N_00300.gal  ellipse_N_02000.gal  sun_and_planet_N_2.gal
+ellipse_N_00050.gal  ellipse_N_00400.gal  ellipse_N_03000.gal  sun_and_planets_N_3.gal
+ellipse_N_00060.gal  ellipse_N_00500.gal  ellipse_N_04000.gal  sun_and_planets_N_4.gal
+ellipse_N_00070.gal  ellipse_N_00600.gal  ellipse_N_05000.gal
+
+circles_N_2.gal : two stars with equal mass moving in circles.
+circles_N_4.gal : four stars with equal mass moving in circles.
+sun_and_planet_N_2.gal : one heavy particle and one lighter particle orbiting the
+heavy one, like a planet around a sun.
+sun_and_planets_N_3.gal : sun and two planets.
+sun_and_planets_N_4.gal : sun and three planets.
+ellipse_N_01500.gal : where the number, 1500 in this case, is the number of stars N.
+
+lish6557@LAPTOP-B927FN7A:~/HPP/Assignment3/ref_output_data$ ls
+ellipse_N_00010_after200steps.gal  ellipse_N_01000_after200steps.gal
+ellipse_N_00100_after200steps.gal  ellipse_N_02000_after200steps.gal
+ellipse_N_00500_after200steps.gal  ellipse_N_03000_after100steps.gal
