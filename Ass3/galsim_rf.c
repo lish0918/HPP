@@ -42,44 +42,38 @@ void read_initial_configuration(const char *filename, Particle *particles, int N
     fclose(file);
 }
 
-void update_particle(Particle *particle, Force *force, double delta_t) {
-    // Implement function to update position and velocity of a particle
-    double delta_t_mass = delta_t / particle->mass;
-    particle->velocity_x += delta_t_mass * force->force_x;
-    particle->velocity_y += delta_t_mass * force->force_y;
-    particle->position_x += delta_t * particle->velocity_x;
-    particle->position_y += delta_t * particle->velocity_y;
-}
-
-
 void simulate(Particle *particles, Force *forces, int N, int nsteps, double delta_t) {
     double G = 100.0/N;
+
     for (int step = 0; step < nsteps; step++) {
-        for (int i = 0; i < N; i++){
-            forces[i].force_x = 0.0;
-            forces[i].force_y = 0.0;
-        } 
         for (int i = 0; i < N; i++) {
-            double position_x_i = particles[i].position_x;
-            double position_y_i = particles[i].position_y;
-            double mass_i = particles[i].mass;
+		        forces[i].force_x = 0.0;
+		        forces[i].force_y = 0.0;
+		
+		        double position_x_i = particles[i].position_x;
+		        double position_y_i = particles[i].position_y;
+		        double mass_i = particles[i].mass;
+		
+		        for (int j = i + 1; j < N; j++) {
+		            double dx = position_x_i - particles[j].position_x;
+		            double dy = position_y_i - particles[j].position_y;
+		            double distance_squared = sqrt(dx * dx + dy * dy) + EPSILON;
+		            double distance_cubed = distance_squared * distance_squared * distance_squared;
+		            double force_magnitude = -G * mass_i * particles[j].mass / distance_cubed;
+		            forces[i].force_x += force_magnitude * dx;
+		            forces[i].force_y += force_magnitude * dy;
+		
+		            forces[j].force_x -= force_magnitude * dx;
+		            forces[j].force_y -= force_magnitude * dy;
+		        }
+		    }
 
-            for (int j = i + 1; j < N; j++) {
-                double dx = position_x_i - particles[j].position_x;
-                double dy = position_y_i - particles[j].position_y;
-                double distance_squared = sqrt(dx * dx + dy * dy) + EPSILON;
-                double distance_cubed = distance_squared * distance_squared * distance_squared;
-                double force_magnitude = -G * mass_i * particles[j].mass / distance_cubed;
-                forces[i].force_x += force_magnitude * dx;
-                forces[i].force_y += force_magnitude * dy;
-
-                forces[j].force_x -= force_magnitude * dx;
-                forces[j].force_y -= force_magnitude * dy;
-            }
-        }
-        for (int i = 0; i < N; i++) {
-            update_particle(&particles[i], &forces[i], delta_t);
-        }
+            // Update particle position and velocity
+            double delta_t_mass = delta_t / particles->mass;
+			particles->velocity_x += delta_t_mass * forces->force_x;
+			particles->velocity_y += delta_t_mass * forces->force_y;
+			particles->position_x += delta_t * particles->velocity_x;
+			particles->position_y += delta_t * particles->velocity_y;
     }
 }
 
@@ -96,17 +90,23 @@ void write_results(const char *filename, Particle *particles, int N) {
     fclose(file);
 }
 
-int main(int argc, char *argv[]) {
-    // Parse command line arguments
-    if (argc != 6) {
-        printf("Usage: %s N filename nsteps delta_t graphics\n", argv[0]);
-        return 1;
-    }
-    int N = atoi(argv[1]);
-    char *filename = argv[2];
-    int nsteps = atoi(argv[3]);
-    double delta_t = atof(argv[4]);
-    int graphics = atoi(argv[5]);
+int main() {
+    // Read input from user
+    int N, nsteps;
+    double delta_t;
+    char filename[100];
+
+    printf("Enter the number of particles: ");
+    scanf("%d", &N);
+
+    printf("Enter the filename: ");
+    scanf("%s", filename);
+
+    printf("Enter the number of steps: ");
+    scanf("%d", &nsteps);
+
+    printf("Enter the time step: ");
+    scanf("%lf", &delta_t);
 
     Particle *particles = malloc(N * sizeof(Particle));
     if (particles == NULL) {

@@ -23,7 +23,7 @@ int read_doubles_from_file(int n, double* p, const char* fileName) {
   if(fileSize != n * sizeof(double)) {
     printf("read_doubles_from_file error: size of input file '%s' does not match the given n.\n", fileName);
     printf("For n = %d the file size is expected to be (n * sizeof(double)) = %lu but the actual file size is %lu.\n",
-           n, n * sizeof(double), fileSize);
+	   n, n * sizeof(double), fileSize);
     return -1;
   }
   /* Read contents of input_file into buffer. */
@@ -61,17 +61,22 @@ int check_that_numbers_seem_OK(int n, double* buf) {
     return -1;
 }
 
-int main(int argc, const char* argv[]) {
-  if(argc != 4) {
-    printf("Give 3 input args: N gal1.gal gal2.gal\n");
-    return -1;
-  }
-  int N = atoi(argv[1]);
-  const char* fileName1 = argv[2];
-  const char* fileName2 = argv[3];
+int main() {
+  int N;
+  char fileName1[100];
+  char fileName2[100];
+  
+  printf("Enter the value of N: ");
+  scanf("%d", &N);
+  printf("Enter the file name for fileName1: ");
+  scanf("%s", fileName1);
+  printf("Enter the file name for fileName2: ");
+  scanf("%s", fileName2);
+  
   printf("N = %d\n", N);
   printf("fileName1 = '%s'\n", fileName1);
   printf("fileName2 = '%s'\n", fileName2);
+  
   /* Read files. */
   double buf1[6*N];
   if(read_doubles_from_file(6*N, buf1, fileName1) != 0) {
@@ -91,6 +96,7 @@ int main(int argc, const char* argv[]) {
     printf("Error: strange numbers found in file '%s'.\n", fileName2);
     return -1;
   }
+  
   /* Compare positions and velocities. */
   double pos_maxdiff = 0;
   double vel_maxdiff = 0;
@@ -113,6 +119,7 @@ int main(int argc, const char* argv[]) {
     update_maxdiff(pos_dx, pos_dy, &pos_maxdiff);
     update_maxdiff(vel_dx, vel_dy, &vel_maxdiff);
   }
+  
   printf("pos_maxdiff = %16.12f\n", pos_maxdiff);
   return 0;
 }

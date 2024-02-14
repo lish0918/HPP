@@ -6,8 +6,10 @@ nsteps is the number of timesteps
 delta_t is the timestep ∆t
 graphics is 1 or 0 meaning graphics on/off
 
-
-./galsim 100 circles_N_2.gal 200 0.00001 1
+./galsim 3000 ellipse_N_03000.gal 100 0.00001 1
+./compare_gal_files 3000 ../result.gal ../ref_output_data/ellipse_N_03000_after100steps.gal
+./galsim 10 ellipse_N_00010.gal 200 0.00001 1
+./compare_gal_files 10 ../result.gal ../ref_output_data/ellipse_N_00010_after200steps.gal
 ./galsim：运行名为 galsim 的可执行文件。
 100：粒子的数量。
 circles_N_2.gal：初始配置文件的文件名，位于当前目录下或指定路径下。
