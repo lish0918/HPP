@@ -22,11 +22,7 @@ typedef struct{
 void read_initial_configuration(const char *filename, Particle *particles, int N) {
     // Implement function to read initial configuration from file
 
-    char filepath[100];
-
-    strcpy(filepath, "input_data/");
-    strcat(filepath, filename);
-    FILE *file = fopen(filepath, "rb");
+    FILE *file = fopen(filename, "rb");
     if (file == NULL) {
         fprintf(stderr, "Error: Could not open file %s\n", filename);
         exit(1);
@@ -44,17 +40,22 @@ void read_initial_configuration(const char *filename, Particle *particles, int N
 
 void compute_forces(Particle *particles, Force *forces, int N) {
     // Implement function to compute forces between particles
-    double G = 100.0/N;
+    double G = 100.0 / N;
     for (int i = 0; i < N; i++) {
         forces[i].force_x = 0.0;
         forces[i].force_y = 0.0;
 
+        double position_x_i = particles[i].position_x;
+        double position_y_i = particles[i].position_y;
+        double mass_i = particles[i].mass;
+
         for (int j = 0; j < N; j++) {
             if (j != i) {
-                double dx = particles[i].position_x - particles[j].position_x;
-                double dy = particles[i].position_y - particles[j].position_y;
-                double distance = sqrt(dx * dx + dy * dy);
-                double force_magnitude = -G * particles[i].mass * particles[j].mass / pow(distance + EPSILON, 3);
+                double dx = position_x_i - particles[j].position_x;
+                double dy = position_y_i - particles[j].position_y;
+                double distance_squared = sqrt(dx * dx + dy * dy) + EPSILON;
+                double distance_cubed=distance_squared*distance_squared*distance_squared;
+                double force_magnitude = -G * mass_i * particles[j].mass / distance_cubed;
                 forces[i].force_x += force_magnitude * dx;
                 forces[i].force_y += force_magnitude * dy;
             }
@@ -62,10 +63,11 @@ void compute_forces(Particle *particles, Force *forces, int N) {
     }
 }
 
-void update_particle(Particle *particle,Force *force, double delta_t) {
+void update_particle(Particle *particle, Force *force, double delta_t) {
     // Implement function to update position and velocity of a particle
-    particle->velocity_x += delta_t * force->force_x / particle->mass;
-    particle->velocity_y += delta_t * force->force_y / particle->mass;
+    double delta_t_mass = delta_t / particle->mass;
+    particle->velocity_x += delta_t_mass * force->force_x;
+    particle->velocity_y += delta_t_mass * force->force_y;
     particle->position_x += delta_t * particle->velocity_x;
     particle->position_y += delta_t * particle->velocity_y;
 }
