@@ -1,3 +1,4 @@
+/*0m19,073s*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -37,7 +38,7 @@ void simulate(double *position_x, double *position_y, double *mass, double *velo
         for (int i = 0; i < N; i++){
             force_x[i] = 0.0;
             force_y[i] = 0.0;
-        } 
+        }
         for (int i = 0; i < N; i++) {
             double position_x_i = position_x[i];
             double position_y_i = position_y[i];
@@ -47,7 +48,7 @@ void simulate(double *position_x, double *position_y, double *mass, double *velo
                 double dx = position_x_i - position_x[j];
                 double dy = position_y_i - position_y[j];
                 double distance_squared = sqrt(dx * dx + dy * dy) + EPSILON;
-                double distance_cubed = distance_squared * distance_squared * distance_squared;
+                double distance_cubed=distance_squared*distance_squared*distance_squared;
                 double force_magnitude = -G * mass_i * mass[j] / distance_cubed;
                 force_x[i] += force_magnitude * dx;
                 force_y[i] += force_magnitude * dy;
@@ -56,6 +57,7 @@ void simulate(double *position_x, double *position_y, double *mass, double *velo
                 force_y[j] -= force_magnitude * dy;
             }
         }
+        
         for(int i = 0; i < N; i++){
             double delta_t_mass = delta_t / mass[i];
             velocity_x[i] += delta_t_mass * force_x[i];
@@ -82,23 +84,17 @@ void write_results(const char *filename, double *position_x, double *position_y,
     fclose(file);
 }
 
-int main() {
-    // Read input from user
-    int N, nsteps;
-    double delta_t;
-    char filename[100];
-
-    printf("Enter the number of particles: ");
-    scanf("%d", &N);
-
-    printf("Enter the filename: ");
-    scanf("%s", filename);
-
-    printf("Enter the number of steps: ");
-    scanf("%d", &nsteps);
-
-    printf("Enter the time step: ");
-    scanf("%lf", &delta_t);
+int main(int argc, char *argv[]) {
+    // Parse command line arguments
+    if (argc != 6) {
+        printf("Usage: %s N filename nsteps delta_t graphics\n", argv[0]);
+        return 1;
+    }
+    int N = atoi(argv[1]);
+    char *filename = argv[2];
+    int nsteps = atoi(argv[3]);
+    double delta_t = atof(argv[4]);
+    int graphics = atoi(argv[5]);
 
     double position_x[N], position_y[N], mass[N], velocity_x[N], velocity_y[N], brightness[N], force_x[N], force_y[N];
     

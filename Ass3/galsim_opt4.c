@@ -1,3 +1,4 @@
+/*0m29,948s*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>

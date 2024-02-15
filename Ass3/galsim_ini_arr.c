@@ -1,4 +1,4 @@
-/*0m32,829s*/
+/*1m33,218s*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -32,36 +32,39 @@ void read_initial_configuration(const char *filename, double *position_x, double
 }
 
 
-void simulate(double *position_x, double *position_y, double *mass, double *velocity_x, double *velocity_y, double *brightness, double *force_x, double *force_y, int N, int nsteps, double delta_t) {
+void compute_forces(double *position_x, double *position_y, double *mass, double *velocity_x, double *velocity_y, double *brightness, double *force_x, double *force_y, int N) {
+    // Implement function to compute forces between particles
     double G = 100.0/N;
-    for (int step = 0; step < nsteps; step++) {
-        for (int i = 0; i < N; i++) {
-            force_x[i] = 0.0;
-            force_y[i] = 0.0;
+    for (int i = 0; i < N; i++) {
+        force_x[i] = 0.0;
+        force_y[i] = 0.0;
 
-            double position_x_i = position_x[i];
-            double position_y_i = position_y[i];
-            double mass_i = mass[i];
-
-            for (int j = 0; j < N; j++) {
-                if (j != i) {
-                    double dx = position_x_i - position_x[j];
-                    double dy = position_y_i - position_y[j];
-                    double distance_squared = sqrt(dx * dx + dy * dy) + EPSILON;
-                    double distance_cubed=distance_squared*distance_squared*distance_squared;
-                    double force_magnitude = -G * mass_i * mass[j] / distance_cubed;
-                    force_x[i] += force_magnitude * dx;
-                    force_y[i] += force_magnitude * dy;
-                }
+        for (int j = 0; j < N; j++) {
+            if (j != i) {
+                double dx = position_x[i] - position_x[j];
+                double dy = position_y[i] - position_y[j];
+                double distance = sqrt(dx * dx + dy * dy);
+                double force_magnitude = -G * mass[i] * mass[j] / pow(distance + EPSILON, 3);
+                force_x[i] += force_magnitude * dx;
+                force_y[i] += force_magnitude * dy;
             }
         }
-        
-        for(int i = 0; i < N; i++){
-            double delta_t_mass = delta_t / mass[i];
-            velocity_x[i] += delta_t_mass * force_x[i];
-            velocity_y[i] += delta_t_mass * force_y[i];
-            position_x[i] += delta_t * velocity_x[i];
-            position_y[i] += delta_t * velocity_y[i];
+    }
+}
+
+void update_particle(double *position_x, double *position_y, double *mass, double *velocity_x, double *velocity_y, double *brightness, double *force_x, double *force_y, double delta_t) {
+    // Implement function to update position and velocity of a particle
+    *velocity_x += delta_t * (*force_x) / *mass;
+    *velocity_y += delta_t * (*force_y) / *mass;
+    *position_x += delta_t * (*velocity_x);
+    *position_y += delta_t * (*velocity_y);
+}
+
+void simulate(double *position_x, double *position_y, double *mass, double *velocity_x, double *velocity_y, double *brightness, double *force_x, double *force_y, int N, int nsteps, double delta_t) {
+    for (int step = 0; step < nsteps; step++) {
+        compute_forces(position_x, position_y, mass, velocity_x, velocity_y, brightness, force_x, force_y, N);
+        for (int i = 0; i < N; i++) {
+            update_particle(&position_x[i], &position_y[i], &mass[i], &velocity_x[i], &velocity_y[i], &brightness[i], &force_x[i], &force_y[i], delta_t);
         }
     }
 }
@@ -99,6 +102,7 @@ int main(int argc, char *argv[]) {
     read_initial_configuration(filename, position_x, position_y, mass, velocity_x, velocity_y, brightness, N);
     simulate(position_x, position_y, mass, velocity_x, velocity_y, brightness, force_x, force_y, N, nsteps, delta_t);
     write_results("result.gal", position_x, position_y, mass, velocity_x, velocity_y, brightness, N);
+
 
     return 0;
 }
