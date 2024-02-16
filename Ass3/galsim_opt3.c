@@ -9,11 +9,7 @@
 void read_initial_configuration(const char *filename, double *position_x, double *position_y, double *mass, double *velocity_x, double *velocity_y, double *brightness, int N) {
     // Implement function to read initial configuration from file
 
-    char filepath[100];
-
-    strcpy(filepath, "input_data/");
-    strcat(filepath, filename);
-    FILE *file = fopen(filepath, "rb");
+    FILE *file = fopen(filename, "rb");
     if (file == NULL) {
         fprintf(stderr, "Error: Could not open file %s\n", filename);
         exit(1);
