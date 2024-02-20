@@ -1,3 +1,5 @@
+/*Final Version*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -8,11 +10,7 @@
 void read_initial_configuration(const char *filename, double *position_x, double *position_y, double *mass, double *velocity_x, double *velocity_y, double *brightness, int N) {
     // Implement function to read initial configuration from file
 
-    char filepath[100];
-
-    strcpy(filepath, "input_data/");
-    strcat(filepath, filename);
-    FILE *file = fopen(filepath, "rb");
+    FILE *file = fopen(filename, "rb");
     if (file == NULL) {
         fprintf(stderr, "Error: Could not open file %s\n", filename);
         exit(1);
@@ -37,12 +35,14 @@ void simulate(double *position_x, double *position_y, double *mass, double *velo
         for (int i = 0; i < N; i++){
             force_x[i] = 0.0;
             force_y[i] = 0.0;
-        }
-         
+        } 
         for (int i = 0; i < N; i++) {
             double position_x_i = position_x[i];
             double position_y_i = position_y[i];
             double mass_i = mass[i];
+
+            double forcex = force_x[i];
+            double forcey = force_y[i];
 
             for (int j = i + 1; j < N; j++) {
                 double dx = position_x_i - position_x[j];
@@ -50,14 +50,15 @@ void simulate(double *position_x, double *position_y, double *mass, double *velo
                 double distance_squared = sqrt(dx * dx + dy * dy) + EPSILON;
                 double distance_cubed = distance_squared * distance_squared * distance_squared;
                 double force_magnitude = -G * mass_i * mass[j] / distance_cubed;
-                force_x[i] += force_magnitude * dx;
-                force_y[i] += force_magnitude * dy;
+                forcex += force_magnitude * dx;
+                forcey += force_magnitude * dy;
 
                 force_x[j] -= force_magnitude * dx;
                 force_y[j] -= force_magnitude * dy;
             }
+            force_x[i] = forcex;
+            force_y[i] = forcey;
         }
-        
         for(int i = 0; i < N; i++){
             double delta_t_mass = delta_t / mass[i];
             velocity_x[i] += delta_t_mass * force_x[i];
