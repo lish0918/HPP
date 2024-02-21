@@ -3,6 +3,8 @@
  *
  **********************************************************************/
 #include <stdio.h>
+#include <omp.h>
+#include <stdlib.h>
 
 int main(int argc, char *argv[]) {
 
@@ -10,9 +12,12 @@ int main(int argc, char *argv[]) {
   const int intervals = 500000000;
   double sum, dx, x;
 
+  int nThreads = atoi(argv[1]);
+
   dx  = 1.0/intervals;
   sum = 0.0;
 
+#pragma omp parallel for reduction(+:sum) num_threads(nThreads) private(x)
   for (i = 1; i <= intervals; i++) { 
     x = dx*(i - 0.5);
     sum += dx*4.0/(1.0 + x*x);

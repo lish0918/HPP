@@ -26,8 +26,13 @@ int main(int argc, char *argv[]) {
     double time;
     
     time = omp_get_wtime();
-    for (int i=0;i<M;i++){
-        f(N,i,&result[i]);
+    #pragma omp parallel
+    {
+        #pragma omp single
+        for (int i=0;i<M;i++){
+            #pragma omp task
+            f(N,i,&result[i]);
+        }
     }
     time = omp_get_wtime()-time;
  

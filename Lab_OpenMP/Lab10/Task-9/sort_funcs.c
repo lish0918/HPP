@@ -30,13 +30,13 @@ void merge_sort(intType* list_to_sort, int N, int nThreads) {
     int nextThreads = nThreads / 2;
     // Sort list1 and list2 with the specified number of threads
     if (nextThreads > 1) {
-        #pragma omp parallel sections num_threads(2)
+        #pragma omp parallel num_threads(nThreads)
         {
-            #pragma omp section
+            #pragma omp task
             {
                 merge_sort(list, n1, nextThreads); // Recursively call merge_sort with updated nThreads
             }
-            #pragma omp section
+            #pragma omp task
             {
                 merge_sort(list + n1, n2, nextThreads); // Recursively call merge_sort with updated nThreads
             }
