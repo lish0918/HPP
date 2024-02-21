@@ -14,44 +14,56 @@ void bubble_sort(intType* list, int N) {
     }
 }
 
-void merge_sort(intType* list_to_sort, int N) {
-  if(N == 1) {
-    // Only one element, no sorting needed. Just return directly in this case.
-    return;
-  }
-  int n1 = N / 2;
-  int n2 = N - n1;
-  // Allocate new lists
-  intType* list1 = (intType*)malloc(n1*sizeof(intType));
-  intType* list2 = (intType*)malloc(n2*sizeof(intType));
-  int i;
-  for(i = 0; i < n1; i++)
-    list1[i] = list_to_sort[i];
-  for(i = 0; i < n2; i++)
-    list2[i] = list_to_sort[n1+i];
-  // Sort list1 and list2
-  merge_sort(list1, n1);
-  merge_sort(list2, n2);
-  // Merge!
-  int i1 = 0;
-  int i2 = 0;
-  i = 0;
-  while(i1 < n1 && i2 < n2) {
-    if(list1[i1] < list2[i2]) {
-      list_to_sort[i] = list1[i1];
-      i1++;
+void merge_sort(intType* list_to_sort, int N, int nThreads) {
+    if (N == 1) {
+        // Only one element, no sorting needed. Just return directly in this case.
+        return;
     }
-    else {
-      list_to_sort[i] = list2[i2];
-      i2++;
+    int n1 = N / 2;
+    int n2 = N - n1;
+    // Allocate new lists
+    intType* list = (intType*)malloc(N * sizeof(intType));
+    int i;
+    for (i = 0; i < N; i++)
+        list[i] = list_to_sort[i];
+    // Determine the number of threads to use at the next level
+    int nextThreads = nThreads / 2;
+    // Sort list1 and list2 with the specified number of threads
+    if (nextThreads > 1) {
+        #pragma omp parallel sections num_threads(2)
+        {
+            #pragma omp section
+            {
+                merge_sort(list, n1, nextThreads); // Recursively call merge_sort with updated nThreads
+            }
+            #pragma omp section
+            {
+                merge_sort(list + n1, n2, nextThreads); // Recursively call merge_sort with updated nThreads
+            }
+        }
+    } else {
+        // Single thread for lower levels
+        merge_sort(list, n1, nextThreads);
+        merge_sort(list + n1, n2, nextThreads);
     }
-    i++;
-  }
-  while(i1 < n1)
-    list_to_sort[i++] = list1[i1++];
-  while(i2 < n2)
-    list_to_sort[i++] = list2[i2++];
-  free(list1);
-  free(list2);
+    // Merge!
+    int i1 = 0;
+    int i2 = n1;
+    i = 0;
+    while (i1 < n1 && i2 < N) {
+        if (list[i1] < list[i2]) {
+            list_to_sort[i] = list[i1];
+            i1++;
+        }
+        else {
+            list_to_sort[i] = list[i2];
+            i2++;
+        }
+        i++;
+    }
+    while (i1 < n1)
+        list_to_sort[i++] = list[i1++];
+    while (i2 < N)
+        list_to_sort[i++] = list[i2++];
+    free(list);
 }
-

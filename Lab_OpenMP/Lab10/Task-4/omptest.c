@@ -9,7 +9,9 @@ typedef struct DataForThread {
 } DataForThread_t;
 
 void thread_func(DataForThread_t* p) {
-  printf("This is inside thread_func()!\n");
+  p->A = p->A + p->B;
+  p->x = p->x * p->y;
+  //printf("A = %lf, B = %lf, x = %d, y = %d\n", p->A, p->B, p->x, p->y);
 }
 
 int main(int argc, char** argv) {
@@ -34,7 +36,12 @@ int main(int argc, char** argv) {
     int id = omp_get_thread_num();
     /* Call thread_func and give it a pointer to arr[id] as input. */
     thread_func(&arr[id]);
+
+    printf("A = %lf, x = %d\n", arr[id].A, arr[id].x);
   }
+
+  //printf("A = %lf, x = %d\n", arr[0].A, arr[0].x);
+  //printf("A = %lf, x = %d\n", arr[1].A, arr[1].x);
 
   return 0;
 }

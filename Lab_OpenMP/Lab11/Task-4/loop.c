@@ -18,11 +18,12 @@ int main(int argc, char *argv[]) {
   double *A,*B;
   double timer1;
 
-  if(argc != 2) {
+  if(argc != 3) {
     printf("Please give 1 arg: number of threads to use.\n");
     return -1;
   }
   int nThreads = atoi(argv[1]);
+  int chunk_size = atoi(argv[2]);
 
   A = (double *)malloc(n*sizeof(double));
   B = (double *)malloc(n*sizeof(double));
@@ -34,7 +35,7 @@ int main(int argc, char *argv[]) {
 
 #pragma omp parallel num_threads(nThreads)
   {
-#pragma omp for
+#pragma omp for schedule(dynamic, chunk_size)
     for (i=0;i<n;i++){
       B[i]=work(A[i]);
     }

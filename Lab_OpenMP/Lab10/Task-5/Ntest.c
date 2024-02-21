@@ -25,20 +25,29 @@ int main() {
 
   long int result_A;
   long int result_B;
+  double start_time_A, end_time_A, start_time_B, end_time_B;
 
 #pragma omp parallel num_threads(2)
   {
     int id = omp_get_thread_num();
-    if(id == 0)
+    if(id == 0){
+      start_time_A = omp_get_wtime();
       result_A = thread_func_A();
-    else
+      end_time_A = omp_get_wtime();
+    }   
+    else{
+      start_time_B = omp_get_wtime();
       result_B = thread_func_B();
+      end_time_B = omp_get_wtime();
+    }     
   }
 
   printf("This is the main() function after the parallel block.\n");
 
   printf("result_A : %ld\n", result_A);
+  printf("runningtime_A : %lf\n", end_time_A - start_time_A);
   printf("result_B : %ld\n", result_B);
+  printf("runningtime_B : %lf\n", end_time_B - start_time_B);
   long int totalSum = result_A + result_B;
   printf("totalSum : %ld\n", totalSum);
 

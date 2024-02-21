@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <omp.h>
+#include <stdlib.h>
 
 void do_some_work() {
   printf("Now I am going to do some work...\n");
@@ -11,11 +13,22 @@ void do_some_work() {
 }
 
 int main(int argc, char** argv) {
+  if (argc != 2) {
+        printf("Usage: %s <num_threads>\n", argv[0]);
+        exit(1);
+    }
 
-#pragma omp parallel num_threads(3)
-  {
-    do_some_work();
-  }
+  int n = atoi(argv[1]);
+  double start_time = omp_get_wtime(); // Record start time
+
+  #pragma omp parallel num_threads(n)
+    {
+      do_some_work();
+    }
+
+  double end_time = omp_get_wtime(); // Record end time
+  double elapsed_time = end_time - start_time;
+  printf("Total time: %f seconds\n", elapsed_time);
 
   return 0;
 }

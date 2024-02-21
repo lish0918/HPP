@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
+#include <omp.h>
 #include "sort_funcs.h"
 
 static double get_wall_seconds() {
@@ -21,11 +22,14 @@ static int count_values(const intType* list, int n, intType x) {
 }
 
 int main(int argc, char* argv[]) {
-  if(argc != 2) {
+  if(argc != 3) {
     printf("Please give 1 argument: N (number of elements to sort).\n");
     return -1;
   }
-  int N = atoi(argv[1]);
+  int N, nThreads;
+  N = atoi(argv[1]);
+  nThreads = atoi(argv[2]);
+  
   printf("N = %d\n", N);
   if(N < 1) {
     printf("Error: (N < 1).\n");
@@ -43,7 +47,8 @@ int main(int argc, char* argv[]) {
 
   // Sort list
   double time1 = get_wall_seconds();
-  merge_sort(list_to_sort, N);
+  merge_sort(list_to_sort, N, nThreads);
+  
   printf("Sorting list with length %d took %7.3f wall seconds.\n", N, get_wall_seconds()-time1);  
 
   int count7_again = count_values(list_to_sort, N, 7);
