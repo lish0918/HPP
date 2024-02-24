@@ -27,7 +27,7 @@ void read_initial_configuration(const char *filename, Particle *particles, int N
 
     FILE *file = fopen(filename, "rb");
     if (file == NULL) {
-        fprintf(stderr, "Error: Could not open file %\n", filename);
+        fprintf(stderr, "Error: Could not open file %s\n", filename);
         exit(1);
     }
 

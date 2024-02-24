@@ -15,17 +15,31 @@ typedef struct {
     double brightness;
 } Particle;
 
-typedef struct{
+typedef struct {
     double force_x;
     double force_y;
-}Force;
+} Force;
+
+typedef struct {
+    Particle *particles;
+    Force *forces;
+    int N;
+    int start_index;
+    int end_index;
+} ThreadData;
+
+double delta_t;
 
 void read_initial_configuration(const char *filename, Particle *particles, int N) {
     // Implement function to read initial configuration from file
 
-    FILE *file = fopen(filename, "rb");
+    char filepath[100];
+
+    strcpy(filepath, "input_data/");
+    strcat(filepath, filename);
+    FILE *file = fopen(filepath, "rb");
     if (file == NULL) {
-        fprintf(stderr, "Error: Could not open file %\n", filename);
+        fprintf(stderr, "Error: Could not open file %s\n", filename);
         exit(1);
     }
 
@@ -38,43 +52,76 @@ void read_initial_configuration(const char *filename, Particle *particles, int N
     fclose(file);
 }
 
+void* compute_forces(void *arg) {
+    ThreadData *data = (ThreadData*) arg;
 
-void simulate(Particle *particles, Force *forces, int N, int nsteps, double delta_t) {
-    double G = 100.0/N;
-    for (int step = 0; step < nsteps; step++) {
-        for (int i = 0; i < N; i++){
-            forces[i].force_x = 0.0;
-            forces[i].force_y = 0.0;
-        } 
-        for (int i = 0; i < N; i++) {
-            double position_x_i = particles[i].position_x;
-            double position_y_i = particles[i].position_y;
-            double mass_i = particles[i].mass;
+    double G = 100.0 / data->N;
 
-            double forcex = forces[i].force_x;
-            double forcey = forces[i].force_y;
+    for (int i = data->start_index; i < data->end_index; i++) {
+        data->forces[i].force_x = 0.0;
+        data->forces[i].force_y = 0.0;
 
-            for (int j = i + 1; j < N; j++) {
-                double dx = position_x_i - particles[j].position_x;
-                double dy = position_y_i - particles[j].position_y;
+        double position_x_i = data->particles[i].position_x;
+        double position_y_i = data->particles[i].position_y;
+        double mass_i = data->particles[i].mass;
+
+        for (int j = 0; j < data->N; j++) {
+            if (j != i) {
+                double dx = position_x_i - data->particles[j].position_x;
+                double dy = position_y_i - data->particles[j].position_y;
                 double distance_squared = sqrt(dx * dx + dy * dy) + EPSILON;
                 double distance_cubed = distance_squared * distance_squared * distance_squared;
-                double force_magnitude = -G * mass_i * particles[j].mass / distance_cubed;
-                forcex += force_magnitude * dx;
-                forcey += force_magnitude * dy;
-
-                forces[j].force_x -= force_magnitude * dx;
-                forces[j].force_y -= force_magnitude * dy;
+                double force_magnitude = -G * mass_i * data->particles[j].mass / distance_cubed;
+                data->forces[i].force_x += force_magnitude * dx;
+                data->forces[i].force_y += force_magnitude * dy;
             }
-            forces[i].force_x = forcex;
-            forces[i].force_y = forcey;
         }
-        for(int i = 0; i < N; i++){
-            double delta_t_mass = delta_t / particles[i].mass;
-            particles[i].velocity_x += delta_t_mass * forces[i].force_x;
-            particles[i].velocity_y += delta_t_mass * forces[i].force_y;
-            particles[i].position_x += delta_t * particles[i].velocity_x;
-            particles[i].position_y += delta_t * particles[i].velocity_y;
+    }
+
+    pthread_exit(NULL);
+}
+
+void* update_particles(void *arg) {
+    ThreadData *data = (ThreadData*) arg;
+
+    for (int i = data->start_index; i < data->end_index; i++) {
+        double delta_t_mass = delta_t / data->particles[i].mass;
+        data->particles[i].velocity_x += delta_t_mass * data->forces[i].force_x;
+        data->particles[i].velocity_y += delta_t_mass * data->forces[i].force_y;
+        data->particles[i].position_x += delta_t * data->particles[i].velocity_x;
+        data->particles[i].position_y += delta_t * data->particles[i].velocity_y;
+    }
+
+    pthread_exit(NULL);
+}
+
+void simulate(Particle *particles, Force *forces, int N, int nsteps, int n_threads) {
+    pthread_t threads[n_threads];
+    ThreadData thread_data[n_threads];
+
+    int chunk_size = N / n_threads;
+
+    for (int step = 0; step < nsteps; step++) {
+        for (int i = 0; i < n_threads; i++) {
+            thread_data[i].particles = particles;
+            thread_data[i].forces = forces;
+            thread_data[i].N = N;
+            thread_data[i].start_index = i * chunk_size;
+            thread_data[i].end_index = (i == n_threads - 1) ? N : (i + 1) * chunk_size;
+
+            pthread_create(&threads[i], NULL, compute_forces, (void*)&thread_data[i]);
+        }
+
+        for (int i = 0; i < n_threads; i++) {
+            pthread_join(threads[i], NULL);
+        }
+
+        for (int i = 0; i < n_threads; i++) {
+            pthread_create(&threads[i], NULL, update_particles, (void*)&thread_data[i]);
+        }
+
+        for (int i = 0; i < n_threads; i++) {
+            pthread_join(threads[i], NULL);
         }
     }
 }
@@ -101,7 +148,7 @@ int main(int argc, char *argv[]) {
     int N = atoi(argv[1]);
     char *filename = argv[2];
     int nsteps = atoi(argv[3]);
-    double delta_t = atof(argv[4]);
+    delta_t = atof(argv[4]);
     int graphics = atoi(argv[5]);
     int n_threads = atoi(argv[6]);
 
@@ -115,9 +162,9 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "Memory allocation failed\n");
         return 1;
     }
-    
+
     read_initial_configuration(filename, particles, N);
-    simulate(particles, forces, N, nsteps, delta_t);
+    simulate(particles, forces, N, nsteps, n_threads);
     write_results("result.gal", particles, N);
 
     free(particles);

@@ -7,7 +7,7 @@ delta_t is the timestep ∆t
 graphics is 1 or 0 meaning graphics on/off
 n_threads is the number of threads to use
 
-./galsim 3000 ellipse_N_03000.gal 100 0.00001 1 2
+./galsim 3000 ellipse_N_03000.gal 100 0.00001 1 1
 ./compare_gal_files 3000 ../result.gal ../ref_output_data/ellipse_N_03000_after100steps.gal
 ./galsim 10 ellipse_N_00010.gal 200 0.00001 1 2
 ./compare_gal_files 10 ../result.gal ../ref_output_data/ellipse_N_00010_after200steps.gal
@@ -17,6 +17,8 @@ circles_N_2.gal：初始配置文件的文件名，位于当前目录下或指�
 200：模拟的时间步数。
 0.00001：时间步长。
 1：用于指示是否打开图形显示，这里为打开图形显示。
+
+编译：gcc Pthreads.c -o galsim -pthread
 
 lish6557@LAPTOP-B927FN7A:~/HPP/Assignment3/input_data$ ls
 circles_N_2.gal      ellipse_N_00080.gal  ellipse_N_00700.gal  ellipse_N_06000.gal
