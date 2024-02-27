@@ -18,7 +18,7 @@ typedef struct {
 typedef struct{
     double force_x;
     double force_y;
-}Force;
+} Force;
 
 void read_initial_configuration(const char *filename, Particle *particles, int N) {
     // Implement function to read initial configuration from file
@@ -42,42 +42,35 @@ void read_initial_configuration(const char *filename, Particle *particles, int N
     fclose(file);
 }
 
-void compute_forces(Particle *particles, Force *forces, int N, int n_threads) {
+void simulate(Particle *particles, Force *forces, int N, int nsteps, double delta_t, int n_threads) {
     double G = 100.0/N;
-    #pragma omp parallel for schedule(static) num_threads(n_threads)
-    for (int i = 0; i < N; i++) {
+
+    for (int step = 0; step < nsteps; step++) {
+        #pragma omp parallel for num_threads(n_threads) shared(particles, forces)
+        for (int i = 0; i < N; i++) {
+            double force_x_sum = 0.0;
+            double force_y_sum = 0.0;
+
             double position_x_i = particles[i].position_x;
             double position_y_i = particles[i].position_y;
             double mass_i = particles[i].mass;
 
-            double forcex = forces[i].force_x;
-            double forcey = forces[i].force_y;
-
-            for (int j = i + 1; j < N; j++) {
-                double dx = position_x_i - particles[j].position_x;
-                double dy = position_y_i - particles[j].position_y;
-                double distance_squared = sqrt(dx * dx + dy * dy) + EPSILON;
-                double distance_cubed = distance_squared * distance_squared * distance_squared;
-                double force_magnitude = -G * mass_i * particles[j].mass / distance_cubed;
-                forcex += force_magnitude * dx;
-                forcey += force_magnitude * dy;
-
-                forces[j].force_x -= force_magnitude * dx;
-                forces[j].force_y -= force_magnitude * dy;
+            for (int j = 0; j < N; j++) {
+                if (j != i) {
+                    double dx = position_x_i - particles[j].position_x;
+                    double dy = position_y_i - particles[j].position_y;
+                    double distance_squared = fabs(dx) + fabs(dy) + EPSILON;
+                    double distance_cubed = distance_squared * distance_squared * distance_squared;
+                    double force_magnitude = -G * mass_i * particles[j].mass / distance_cubed;
+                    force_x_sum += force_magnitude * dx;
+                    force_y_sum += force_magnitude * dy;
+                }
             }
-            forces[i].force_x = forcex;
-            forces[i].force_y = forcey;
+            forces[i].force_x = force_x_sum;
+            forces[i].force_y = force_y_sum;
         }
-}
 
-
-void simulate(Particle *particles, Force *forces, int N, int nsteps, double delta_t, int n_threads) {
-    for (int step = 0; step < nsteps; step++) {
-        for (int i = 0; i < N; i++){
-            forces[i].force_x = 0.0;
-            forces[i].force_y = 0.0;
-        }
-        compute_forces(particles, forces, N, n_threads);
+        #pragma omp parallel for num_threads(n_threads) shared(particles, forces)
         for(int i = 0; i < N; i++){
             double delta_t_mass = delta_t / particles[i].mass;
             particles[i].velocity_x += delta_t_mass * forces[i].force_x;
@@ -87,6 +80,8 @@ void simulate(Particle *particles, Force *forces, int N, int nsteps, double delt
         }
     }
 }
+
+
 
 void write_results(const char *filename, Particle *particles, int N) {
     // Implement function to write results to file

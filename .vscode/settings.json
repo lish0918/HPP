@@ -7,6 +7,8 @@
         "chrono": "c",
         "algorithm": "c",
         "hash_map": "c",
-        "hash_set": "c"
+        "hash_set": "c",
+        "ostream": "cpp",
+        "atomic": "c"
     }
 }
