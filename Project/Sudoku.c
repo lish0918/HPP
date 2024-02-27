@@ -49,23 +49,6 @@ int ValidateBoard(int board[BoardSize][BoardSize], int x, int y, int num) {
     return 1;
 }
 
-void PrintBoard(int board[BoardSize][BoardSize]) {
-    for (int x = 0; x < BoardSize; x++) {
-        if (x % BoxSize == 0) {
-            printf("-------------------------\n");
-        }
-        for (int y = 0; y < BoardSize; y++) {
-            if (y % BoxSize == 0) {
-                printf("| ");
-            }
-            printf("%d ", board[x][y]);
-        }
-        printf("|\n");
-    }
-    printf("-------------------------\n");
-}
-
-// 回溯法解数独
 int SolveSudoku(int board[BoardSize][BoardSize], int row, int col) {
     if (row == BoardSize - 1 && col == BoardSize) {
         return 1;
@@ -92,21 +75,16 @@ int SolveSudoku(int board[BoardSize][BoardSize], int row, int col) {
     return 0;
 }
 
-// 生成唯一解的数独棋盘
 void GenerateUniqueBoard(int board[BoardSize][BoardSize]) {
     srand(time(NULL));
-    // 清空棋盘
     for (int i = 0; i < BoardSize; i++) {
         for (int j = 0; j < BoardSize; j++) {
             board[i][j] = 0;
         }
     }
-
-    // 生成数独棋盘
     SolveSudoku(board, 0, 0);
 }
 
-// 随机移除数字
 void RemoveNumbers(int board[BoardSize][BoardSize], int cellsToRemove) {
     srand(time(NULL));
     while (cellsToRemove > 0) {
@@ -120,7 +98,7 @@ void RemoveNumbers(int board[BoardSize][BoardSize], int cellsToRemove) {
 }
 
 void WriteBoardToFile(int board[BoardSize][BoardSize], const char *filename) {
-    FILE *file = fopen(filename, "w");
+    FILE *file = fopen(filename, "a");
     if (file == NULL) {
         printf("Error opening file.\n");
         return;
@@ -132,22 +110,43 @@ void WriteBoardToFile(int board[BoardSize][BoardSize], const char *filename) {
         }
         fprintf(file, "\n");
     }
+    fprintf(file, "\n"); // Separate each Sudoku board with an empty line
 
     fclose(file);
-    printf("Board written to file %s\n", filename);
 }
 
-int main() {
-    printf("Welcome to Sudoku!\n");
-    printf("Generating the Sudoku board...\n");
+int main(int argc, char *argv[]) {
+    if (argc != 2) {
+        printf("Usage: %s <number of Sudoku boards to generate>\n", argv[0]);
+        return 1;
+    }
 
-    int board[BoardSize][BoardSize] = {0};
-    GenerateUniqueBoard(board);
-    // 随机移除一些数字
-    int cellsToRemove = rand() % 30 + 31; // 31-60 cells to remove
-    RemoveNumbers(board, cellsToRemove);
-    PrintBoard(board);
-    WriteBoardToFile(board, "sudoku_board.txt");
+    int num_boards = atoi(argv[1]);
+
+    printf("Generating %d Sudoku boards...\n", num_boards);
+
+    FILE *output_file = fopen("sudoku_boards.txt", "w");
+    if (output_file == NULL) {
+        printf("Error opening output file.\n");
+        return 1;
+    }
+
+    for (int i = 0; i < num_boards; i++) {
+        int board[BoardSize][BoardSize];
+        GenerateUniqueBoard(board);
+        int cellsToRemove = rand() % 30 + 31; // 31-60 cells to remove
+        RemoveNumbers(board, cellsToRemove);
+        for (int i = 0; i < BoardSize; i++) {
+            for (int j = 0; j < BoardSize; j++) {
+                fprintf(output_file, "%d ", board[i][j]);
+            }
+            fprintf(output_file, "\n");
+        }
+        fprintf(output_file, "\n"); // Separate each Sudoku board with an empty line
+    }
+
+    fclose(output_file);
+    printf("Sudoku boards generated and saved to %s\n", "sudoku_boards.txt");
 
     return 0;
 }

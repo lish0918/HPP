@@ -9,6 +9,7 @@
         "hash_map": "c",
         "hash_set": "c",
         "ostream": "cpp",
-        "atomic": "c"
+        "atomic": "c",
+        "OpenMP.C": "cpp"
     }
 }

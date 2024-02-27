@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <omp.h>
 
 #define BoardSize 9
 
@@ -47,26 +48,43 @@ int Solve(int board[BoardSize][BoardSize], int unAssignInd[], int N_unAssign) {
     int index = unAssignInd[N_unAssign - 1];
     int x = index / BoardSize;
     int y = index % BoardSize;
-    for (int val = 1; val <= BoardSize; val++) {
+    int sol_found = 0;
+
+    #pragma omp parallel for shared(sol_found)
+    for (int val = 1; val <= BoardSize && !sol_found; val++) {
         if (ValidateBoard(board, x, y, val)) {
-            board[x][y] = val; // Set guess
-            // Solve recursively
-            if (Solve(board, unAssignInd, N_unAssign - 1)) {
-                return 1;
+            #pragma omp critical
+            {
+                board[x][y] = val; // Set guess
             }
-            // If the recursive call didn't return a solution, reset the current cell and try the next value
-            board[x][y] = 0; // Reset the value for backtracking
+            if (Solve(board, unAssignInd, N_unAssign - 1)) {
+                sol_found = 1;
+            } else {
+                #pragma omp critical
+                {
+                    board[x][y] = 0; // Reset the value for backtracking
+                }
+            }
         }
     }
-    return 0;
+    return sol_found;
 }
 
-void ReadBoardFromFile(int board[BoardSize][BoardSize], int unAssignInd[], int *N_unAssign, FILE *file) {
+void ReadBoardFromFile(int board[BoardSize][BoardSize], int unAssignInd[], int *N_unAssign) {
+    // Read sudoku board from file
+    FILE *file = fopen("sudoku_board.txt", "r");
+    if (file == NULL) {
+        printf("Failed to open file.\n");
+        return;
+    }
+
     *N_unAssign = 0; // Initialize the number of unassigned cells
 
     for (int x = 0; x < BoardSize; x++) {
         for (int y = 0; y < BoardSize; y++) {
             if (fscanf(file, "%d", &board[x][y]) != 1) {
+                printf("Failed to read board from file.\n");
+                fclose(file);
                 return;
             }
             if (board[x][y] == 0) {
@@ -74,46 +92,40 @@ void ReadBoardFromFile(int board[BoardSize][BoardSize], int unAssignInd[], int *
             }
         }
     }
+
+    fclose(file);
 }
 
-void WriteBoardToFile(int board[BoardSize][BoardSize], FILE *file) {
-    for (int i = 0; i < BoardSize; i++) {
-        for (int j = 0; j < BoardSize; j++) {
-            fprintf(file, "%d ", board[i][j]);
+void PrintBoard(int board[BoardSize][BoardSize]) {
+    printf("-------------------------\n");
+    for (int x = 0; x < BoardSize; x++) {
+        printf("| ");
+        for (int y = 0; y < BoardSize; y++) {
+            printf("%d ", board[x][y]);
+            if ((y + 1) % 3 == 0) {
+                printf("| ");
+            }
         }
-        fprintf(file, "\n");
+        printf("\n");
+        if ((x + 1) % 3 == 0) {
+            printf("-------------------------\n");
+        }
     }
-    fprintf(file, "\n"); // Separate each Sudoku solution with an empty line
 }
 
 int main() {
-    FILE *input_file = fopen("sudoku_boards.txt", "r");
-    FILE *output_file = fopen("sudoku_solutions.txt", "w");
-
-    if (input_file == NULL || output_file == NULL) {
-        printf("Error opening file.\n");
-        return 1;
-    }
-
     int board[BoardSize][BoardSize];
     int unAssignInd[BoardSize * BoardSize];
     int N_unAssign = 0;
 
-    while (fscanf(input_file, "%d", &board[0][0]) == 1) {
-        // 重新初始化
-        N_unAssign = 0;
+    ReadBoardFromFile(board, unAssignInd, &N_unAssign);
 
-        ReadBoardFromFile(board, unAssignInd, &N_unAssign, input_file);
-
-        if (Solve(board, unAssignInd, N_unAssign)) {
-            WriteBoardToFile(board, output_file);
-        } else {
-            printf("No solution found for one of the boards.\n");
-        }
+    if (Solve(board, unAssignInd, N_unAssign)) {
+        // Print solved board
+        PrintBoard(board);
+    } else {
+        printf("No solution found.\n");
     }
-
-    fclose(input_file);
-    fclose(output_file);
 
     return 0;
 }
