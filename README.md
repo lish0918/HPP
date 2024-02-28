@@ -1,3 +1,8 @@
 # HPP
-Lab2为基础C编程，保存在HPP文件下<br />
-其他基于Linux下的Lab，通过Windows下的Ubuntu保存
+ - Lab2~Lab3为基础C编程
+ - Lab4为Linux基础教程
+ - Lab5~Lab7为串行优化和编译器优化
+ - Lab8~Lab9为Pthread用法
+ - Lab10~Lab11为OpenMP用法
+
+### 可以基于WSL操作，也可以通过VS Code连接远程虚拟机

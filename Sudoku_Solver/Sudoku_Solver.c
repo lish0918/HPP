@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <time.h>
 
 #define BoardSize 9
 
@@ -99,8 +100,9 @@ int main() {
     int unAssignInd[BoardSize * BoardSize];
     int N_unAssign = 0;
 
-    while (fscanf(input_file, "%d", &board[0][0]) == 1) {
-        // 重新初始化
+    // Start time
+    clock_t start = clock();
+    while (!feof(input_file)) {
         N_unAssign = 0;
 
         ReadBoardFromFile(board, unAssignInd, &N_unAssign, input_file);
@@ -111,6 +113,10 @@ int main() {
             printf("No solution found for one of the boards.\n");
         }
     }
+    // End time
+    clock_t end = clock();
+    double time_taken = ((double)(end - start)) / CLOCKS_PER_SEC;
+    printf("Time taken: %f seconds\n", time_taken);
 
     fclose(input_file);
     fclose(output_file);
