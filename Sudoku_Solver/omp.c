@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <time.h>
+#include <omp.h>
 
 #define BoardSize 9
 
