@@ -68,6 +68,7 @@ void main() {
     int unAssignInd[BoardSize * BoardSize];
     int N_unAssign = 0;
     int flag = 0;
+    int num = 0;
 
     while (!feof(file)) {
         // Read a solution
@@ -80,9 +81,10 @@ void main() {
             //printf("The Sudoku solution is invalid.\n");
             flag = 1;
         }
+        num++;
     }
     if (flag == 0) {
-        printf("All Sudoku solutions are valid.\n");
+        printf("All %d Sudoku solutions are valid.\n", num - 1);
     } else {
         printf("One or more Sudoku solutions are invalid.\n");
     }

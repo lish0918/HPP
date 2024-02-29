@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <time.h>
 
-#define BoardSize 9
+#define BoardSize 25
 
 int DuplicateNumbersinRow(int board[BoardSize][BoardSize], int x, int num) {
     for (int y = 0; y < BoardSize; y++) {
@@ -22,8 +22,8 @@ int DuplicateNumbersinCol(int board[BoardSize][BoardSize], int y, int num) {
 }
 
 int DuplicateNumbersinBox(int board[BoardSize][BoardSize], int startRow, int startCol, int num) {
-    for (int x = 0; x < 3; x++) {
-        for (int y = 0; y < 3; y++) {
+    for (int x = 0; x < 5; x++) {
+        for (int y = 0; y < 5; y++) {
             if (board[startRow + x][startCol + y] == num) {
                 return 1;
             }
@@ -34,7 +34,7 @@ int DuplicateNumbersinBox(int board[BoardSize][BoardSize], int startRow, int sta
 
 int ValidateBoard(int board[BoardSize][BoardSize], int x, int y, int num) {
     if (DuplicateNumbersinRow(board, x, num) || DuplicateNumbersinCol(board, y, num) ||
-        DuplicateNumbersinBox(board, x - x % 3, y - y % 3, num)) {
+        DuplicateNumbersinBox(board, x - x % 5, y - y % 5, num)) {
         return 0;
     }
     return 1;
@@ -99,12 +99,12 @@ int main() {
     int board[BoardSize][BoardSize];
     int unAssignInd[BoardSize * BoardSize];
     int N_unAssign = 0;
+    int num_sudokus = 1;
 
     // Start time
     clock_t start = clock();
-    while (!feof(input_file)) {
+    for (int i = 0; i < num_sudokus; i++) {
         N_unAssign = 0;
-
         ReadBoardFromFile(board, unAssignInd, &N_unAssign, input_file);
 
         if (Solve(board, unAssignInd, N_unAssign)) {

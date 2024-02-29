@@ -1,7 +1,5 @@
 #include <stdio.h>
 #include <time.h>
-#include <omp.h>
-#include <stdlib.h>
 
 #define BoardSize 9
 
@@ -42,45 +40,38 @@ int ValidateBoard(int board[BoardSize][BoardSize], int x, int y, int num) {
     return 1;
 }
 
-int GetunAssignInd(int board[BoardSize][BoardSize]){
-    for (int x = 0; x < BoardSize; x++) {
-        for (int y = 0; y < BoardSize; y++) {
-            if (board[x][y] == 0) {
-                return x * 9 + y;
-            }
-        }
-    }
-    return -1;
-}
-
-int Solve(int board[BoardSize][BoardSize]) {
-    int index = GetunAssignInd(board);
-
-    if (index == -1) {
+int Solve(int board[BoardSize][BoardSize], int unAssignInd[], int N_unAssign) {
+    if (N_unAssign == 0) {
+        // No more empty positions, solution found
         return 1;
     }
-
-    int x = index / 9;
-    int y = index % 9;
-
-    for (int num = 1; num <= BoardSize; num++) {
-        if (ValidateBoard(board, x, y, num)) {
-            board[x][y] = num;
-            if (Solve(board)) {
+    int index = unAssignInd[N_unAssign - 1];
+    int x = index / BoardSize;
+    int y = index % BoardSize;
+    for (int val = 1; val <= BoardSize; val++) {
+        if (ValidateBoard(board, x, y, val)) {
+            board[x][y] = val; // Set guess
+            // Solve recursively
+            if (Solve(board, unAssignInd, N_unAssign - 1)) {
                 return 1;
             }
-            board[x][y] = 0;
+            // If the recursive call didn't return a solution, reset the current cell and try the next value
+            board[x][y] = 0; // Reset the value for backtracking
         }
     }
-
-    return 0; 
+    return 0;
 }
 
-void ReadBoardFromFile(int board[BoardSize][BoardSize], FILE *file) {
+void ReadBoardFromFile(int board[BoardSize][BoardSize], int unAssignInd[], int *N_unAssign, FILE *file) {
+    *N_unAssign = 0; // Initialize the number of unassigned cells
+
     for (int x = 0; x < BoardSize; x++) {
         for (int y = 0; y < BoardSize; y++) {
             if (fscanf(file, "%d", &board[x][y]) != 1) {
                 return;
+            }
+            if (board[x][y] == 0) {
+                unAssignInd[(*N_unAssign)++] = x * BoardSize + y; // Increment the count of unassigned cells
             }
         }
     }
@@ -96,15 +87,7 @@ void WriteBoardToFile(int board[BoardSize][BoardSize], FILE *file) {
     fprintf(file, "\n"); // Separate each Sudoku solution with an empty line
 }
 
-int main(int argc, char *argv[]) {
-    if (argc != 3) {
-        printf("Usage: %s <number_of_threads> <number_of_Sudokus>\n", argv[0]);
-        return 1;
-    }
-
-    int num_threads = atoi(argv[1]);
-    int num_sudokus = atoi(argv[2]);
-
+int main() {
     FILE *input_file = fopen("sudoku_boards.txt", "r");
     FILE *output_file = fopen("sudoku_solutions.txt", "w");
 
@@ -114,24 +97,23 @@ int main(int argc, char *argv[]) {
     }
 
     int board[BoardSize][BoardSize];
-    clock_t start = clock();
+    int unAssignInd[BoardSize * BoardSize];
+    int N_unAssign = 0;
+    int num_sudokus = 1;
 
-    #pragma omp parallel num_threads(num_threads)
-    {
-        #pragma omp for
-        for (int i = 0; i < num_sudokus; i++) {
-            ReadBoardFromFile(board, input_file);
-            if (Solve(board)) {
-                #pragma omp critical
-                {
-                    WriteBoardToFile(board, output_file);
-                }
-            } else {
-                printf("No solution found for the board_%d.\n", i);
-            }
+    // Start time
+    clock_t start = clock();
+    for (int i = 0; i < num_sudokus; i++) {
+        N_unAssign = 0;
+        ReadBoardFromFile(board, unAssignInd, &N_unAssign, input_file);
+
+        if (Solve(board, unAssignInd, N_unAssign)) {
+            WriteBoardToFile(board, output_file);
+        } else {
+            printf("No solution found for one of the boards.\n");
         }
     }
-
+    // End time
     clock_t end = clock();
     double time_taken = ((double)(end - start)) / CLOCKS_PER_SEC;
     printf("Time taken: %f seconds\n", time_taken);
