@@ -80,7 +80,7 @@ void ReadBoardFromFile(int board[BoardSize][BoardSize], int unAssignInd[], int *
 void WriteBoardToFile(int board[BoardSize][BoardSize], FILE *file) {
     for (int i = 0; i < BoardSize; i++) {
         for (int j = 0; j < BoardSize; j++) {
-            fprintf(file, "%d ", board[i][j]);
+            fprintf(file, "%2d ", board[i][j]);
         }
         fprintf(file, "\n");
     }
@@ -99,7 +99,10 @@ int main() {
     int board[BoardSize][BoardSize];
     int unAssignInd[BoardSize * BoardSize];
     int N_unAssign = 0;
-    int num_sudokus = 1;
+    int num_sudokus;
+
+    printf("Enter the number of Sudoku boards to solve: ");
+    scanf("%d", &num_sudokus);
 
     // Start time
     clock_t start = clock();
