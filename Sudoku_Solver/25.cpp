@@ -11,7 +11,7 @@ using std::endl;
 #define BLANK 0
 #define SPACE " "
 #define LINE "|"
-#define NEW_ROW "-----------------------------------------------------------------------------------"
+#define NEW_ROW "----------------------------------------------------------"
 #define GRID_FULL std::make_pair(16, 16)
 
 // Prints the Soduko grid
@@ -119,23 +119,42 @@ bool solve_soduko3(int grid[DIM][DIM])
     // Consider digits 1 to 16 
     for (int num = 1; num <= 16; num++)
     {
+        // If placing the current number in the current
+        // unassigned location is valid, go ahead
+    //int iam = omp_get_thread_num();
+    //printf("Executing thread: %d with number: %d\n" ,iam, num);
         if (is_safe(grid, row, col, num))
         {
+            // Make tentative assignment
+      //int iam = omp_get_thread_num();
+      //printf("Is_safe from thread: %d\n",iam);
             grid[row][col] = num;
 
+            // Do the same thing again recursively. If we go 
+            // through all of the recursions, and in the end 
+            // return true, then all of our number placements 
+            // on the Soduko grid are valid and we have fully
+            // solved it
             if (solve_soduko3(grid))
             { 
         //int iam = omp_get_thread_num();
         //printf("Solution from thread %d\n",iam);
         print_grid(grid);
-                exit(true); //omp cancel
-                return true;
+                exit(true);
+        return true;
             }
 
+            // As we were not able to validly go through all 
+            // of the recursions, we must have an invalid number
+            // placement somewhere. Lets go back and try a 
             // different number for this particular unassigned location
             grid[row][col] = BLANK;
         }
     }
+
+    // If we have gone through all possible numbers for the current unassigned
+    // location, then we probably assigned a bad number early. Lets backtrack 
+    // and try a different number for the previous unassigned locations.
     return false; 
 }
 
@@ -157,19 +176,41 @@ bool solve_soduko2(int grid[DIM][DIM])
   #pragma omp taskloop firstprivate(grid) 
     for (int num = 1; num <= 16; num++)
     {
+        // If placing the current number in the current
+        // unassigned location is valid, go ahead
+    //int iam = omp_get_thread_num();
+    //printf("Executing thread: %d with number: %d\n" ,iam, num);
         if (is_safe(grid, row, col, num))
         {
+            // Make tentative assignment
+      //int iam = omp_get_thread_num();
+      //printf("Is_safe from thread: %d\n",iam);
             grid[row][col] = num;
 
-            
+            // Do the same thing again recursively. If we go 
+            // through all of the recursions, and in the end 
+            // return true, then all of our number placements 
+            // on the Soduko grid are valid and we have fully
+            // solved it
             if (solve_soduko3(grid))
             { 
-        }
+        //int iam = omp_get_thread_num();
+        //printf("Solution from thread %d\n",iam);
+        //print_grid(grid);
+                //return true;
+            }
 
+            // As we were not able to validly go through all 
+            // of the recursions, we must have an invalid number
+            // placement somewhere. Lets go back and try a 
+            // different number for this particular unassigned location
             grid[row][col] = BLANK;
         }
     }
 
+    // If we have gone through all possible numbers for the current unassigned
+    // location, then we probably assigned a bad number early. Lets backtrack 
+    // and try a different number for the previous unassigned locations.
     return false; 
 }
 
@@ -194,16 +235,41 @@ bool solve_soduko(int grid[DIM][DIM])
   #pragma omp taskloop firstprivate(grid) 
     for (int num = 1; num <= 16; num++)
     {
+        // If placing the current number in the current
+        // unassigned location is valid, go ahead
+    //int iam = omp_get_thread_num();
+    //printf("Executing thread: %d with number: %d\n" ,iam, num);
         if (is_safe(grid, row, col, num))
         {
+            // Make tentative assignment
+      //int iam = omp_get_thread_num();
+      //printf("Is_safe from thread: %d\n",iam);
             grid[row][col] = num;
+
+            // Do the same thing again recursively. If we go 
+            // through all of the recursions, and in the end 
+            // return true, then all of our number placements 
+            // on the Soduko grid are valid and we have fully
+            // solved it
             if (solve_soduko2(grid))
             { 
+        //int iam = omp_get_thread_num();
+        //printf("Solution from thread %d\n",iam);
+        //print_grid(grid);
+                //return true;
             }
+
+            // As we were not able to validly go through all 
+            // of the recursions, we must have an invalid number
+            // placement somewhere. Lets go back and try a 
+            // different number for this particular unassigned location
             grid[row][col] = BLANK;
         }
     }
 
+    // If we have gone through all possible numbers for the current unassigned
+    // location, then we probably assigned a bad number early. Lets backtrack 
+    // and try a different number for the previous unassigned locations.
     return false; 
 }
 

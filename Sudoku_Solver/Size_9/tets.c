@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <time.h>
+#include <omp.h>
 
 #define BoardSize 16
 
@@ -80,7 +81,7 @@ void ReadBoardFromFile(int board[BoardSize][BoardSize], int unAssignInd[], int *
 void WriteBoardToFile(int board[BoardSize][BoardSize], FILE *file) {
     for (int i = 0; i < BoardSize; i++) {
         for (int j = 0; j < BoardSize; j++) {
-            fprintf(file, "%2d ", board[i][j]);
+            fprintf(file, "%d ", board[i][j]);
         }
         fprintf(file, "\n");
     }
@@ -99,21 +100,35 @@ int main() {
     int board[BoardSize][BoardSize];
     int unAssignInd[BoardSize * BoardSize];
     int N_unAssign = 0;
-    int num_sudokus;
+    //int num_sudokus = 1;
 
-    printf("Enter the number of Sudoku boards to solve: ");
-    scanf("%d", &num_sudokus);
+    ReadBoardFromFile(board, unAssignInd, &N_unAssign, input_file);
 
     // Start time
     clock_t start = clock();
-    for (int i = 0; i < num_sudokus; i++) {
-        N_unAssign = 0;
-        ReadBoardFromFile(board, unAssignInd, &N_unAssign, input_file);
+    #pragma omp parallel for schedule(dynamic)
+    for (int i = 0; i < N_unAssign; i++) {
+        int x = unAssignInd[i] / BoardSize;
+        int y = unAssignInd[i] % BoardSize;
 
-        if (Solve(board, unAssignInd, N_unAssign)) {
-            WriteBoardToFile(board, output_file);
-        } else {
-            printf("No solution found for one of the boards.\n");
+        for (int num = 1; num <= BoardSize; num++) {
+            if (ValidateBoard(board, x, y, num)) {
+                #pragma omp critical
+                {
+                    board[x][y] = num;
+                }
+                if (Solve(board, unAssignInd, N_unAssign - 1)){
+                    #pragma omp critical
+                    {
+                        WriteBoardToFile(board, output_file);
+                        printf("Solution found\n");
+                    }
+                }
+                #pragma omp critical
+                {
+                    board[x][y] = 0;
+                }
+            }
         }
     }
     // End time

@@ -152,7 +152,9 @@ void WriteBoardToFile(int board[BoardSize][BoardSize], const char *filename) {
 
 int main() {
 
-    int num_boards = 1;
+    int num_boards;
+    printf("Enter the number of Sudoku boards to generate: ");
+    scanf("%d", &num_boards);
 
     printf("Generating %d Sudoku boards...\n", num_boards);
 
