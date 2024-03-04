@@ -5,13 +5,14 @@
 
 #define BoardSize 25
 #define BoxSize 5
+#define Max_Sudoku 10000
 
 typedef struct {
     int data[BoardSize * BoardSize];
 } Board;
 
 typedef struct {
-    Board* data[BoardSize * BoardSize];
+    Board* data[Max_Sudoku];
     int size;
     int solved;
 } BoardQueue;
@@ -30,7 +31,7 @@ int ValidateBoard(Board* board, int x, int y, int num) {
         if (board->data[(x - x % BoxSize + i / BoxSize) * BoardSize + (y - y % BoxSize + i % BoxSize)] == num) {
             return 0;
         }
-    } // Check the 5x5 box
+    } // Check the 4x4 box
 
     return 1;
 }
@@ -91,6 +92,7 @@ void PartionSolve(BoardQueue* boards) {
 
 void DisorderQueue(BoardQueue* boards) {
     BoardQueue* tboards = (BoardQueue*)malloc(sizeof(BoardQueue));
+    tboards->size = boards -> size;
 
     for (int i = 0; i < boards->size; ++i) {
         tboards->data[i] = (Board*)malloc(sizeof(Board));
@@ -157,7 +159,11 @@ void ReadBoardFromFile(Board* board, FILE *file) {
     }
 }
 
-int main() {
+int main(int argc, char** argv) {
+
+    if(argc != 2) {printf("Usage: %s num_boards\n", argv[0]); return -1; }
+    int num_boards = atoi(argv[1]);
+
     FILE *output_file = fopen("sudoku_solutions.txt", "w");
     FILE *input_file = fopen("sudoku_boards.txt", "r");
 
@@ -171,11 +177,6 @@ int main() {
         fclose(input_file);
         return 1;
     }
-
-    // Read the boards from the input file
-    int num_boards;
-    printf("Enter the number of Sudoku boards to solve: ");
-    scanf("%d", &num_boards);
     
     BoardQueue** problems = (BoardQueue**)malloc(num_boards * sizeof(BoardQueue*));
     for (int i = 0; i < num_boards; i++) {
@@ -188,9 +189,7 @@ int main() {
 
     BoardQueue* solutions = (BoardQueue*)malloc(sizeof(BoardQueue));
     solutions->size = 0;
-
-    // Start time
-    clock_t start = clock();  
+    omp_set_num_threads(4);
 
     for (int i = 0; i < num_boards; i++) {
         PartionSolve(problems[i]);
@@ -204,8 +203,11 @@ int main() {
 
     int num_partions = 1;
 
+    // Start time
+    clock_t start = clock();  
+
     while(solutions->size != num_boards){
-        #pragma omp parallel for schedule(dynamic) shared(num_boards, problems, solutions)
+        #pragma omp parallel for schedule(dynamic) shared(solutions)
         for (int i = 0; i < num_boards; i++) {
             if(problems[i]->solved == 0){
                 if (SolveSudoku(problems[i]->data[0], 0, 0)) {
@@ -222,6 +224,11 @@ int main() {
         }
         num_partions++;
     }
+
+    // End time
+    clock_t end = clock();
+    double time_taken = ((double)(end - start)) / CLOCKS_PER_SEC;
+    printf("Time taken: %f seconds\n", time_taken);
     
     printf("Solved %d Sudoku boards.\n", QueueSize(solutions));
 
@@ -232,13 +239,7 @@ int main() {
     for (int i = 0; i < num_boards; i++) {       
         FreeBoardQueue(problems[i]);
     }
-    free(problems);
     FreeBoardQueue(solutions);
-
-    // End time
-    clock_t end = clock();
-    double time_taken = ((double)(end - start)) / CLOCKS_PER_SEC;
-    printf("Time taken: %f seconds\n", time_taken);
 
     fclose(output_file);
     fclose(input_file);

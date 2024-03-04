@@ -2,6 +2,7 @@
 #include <stdbool.h>
 
 #define BoardSize 16
+#define BoxSize 4
 
 bool isSudoku(int matrix[][BoardSize]) {
     // Check each row and column
@@ -24,13 +25,13 @@ bool isSudoku(int matrix[][BoardSize]) {
         }
     }
 
-    // Check each 4x4 block
-    for (int blockRow = 0; blockRow < BoardSize; blockRow += 4) {
-        for (int blockCol = 0; blockCol < BoardSize; blockCol += 4) {
+    // Check each 5x5 block
+    for (int blockRow = 0; blockRow < BoardSize; blockRow += BoxSize) {
+        for (int blockCol = 0; blockCol < BoardSize; blockCol += BoxSize) {
             bool blockCheck[BoardSize + 1] = {false};
 
-            for (int i = blockRow; i < blockRow + 4; i++) {
-                for (int j = blockCol; j < blockCol + 4; j++) {
+            for (int i = blockRow; i < blockRow + BoxSize; i++) {
+                for (int j = blockCol; j < blockCol + BoxSize; j++) {
                     if (matrix[i][j] != 0 && blockCheck[matrix[i][j]]) {
                         return false;
                     }

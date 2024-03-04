@@ -1,0 +1,25 @@
+16x16
+
+lish6557@arrhenius:~/HPP/Sudoku_Solver/Size_16$ ./sol 10000
+Time taken: 1.154057 seconds
+lish6557@arrhenius:~/HPP/Sudoku_Solver/Size_16$ ./omp 10000
+Time taken: 0.454617 seconds
+
+lish6557@arrhenius:~/HPP/Sudoku_Solver/Size_16$ ./omp 1000
+Time taken: 0.045087 seconds
+Solved 1000 Sudoku boards.
+lish6557@arrhenius:~/HPP/Sudoku_Solver/Size_16$ ./sol 1000
+Time taken: 0.134239 seconds
+
+
+25x25
+lish6557@arrhenius:~/HPP/Sudoku_Solver/Size_25$ ./sol 10000
+Time taken: 2.763534 seconds
+lish6557@arrhenius:~/HPP/Sudoku_Solver/Size_25$ ./omp 10000
+Time taken: 1.300886 seconds
+
+lish6557@arrhenius:~/HPP/Sudoku_Solver/Size_25$ ./omp 1000
+Time taken: 0.145615 seconds
+Solved 1000 Sudoku boards.
+lish6557@arrhenius:~/HPP/Sudoku_Solver/Size_25$ ./sol 1000
+Time taken: 0.295201 seconds

@@ -134,10 +134,10 @@ void WriteBoardToFile(int board[BoardSize][BoardSize], const char *filename) {
     fclose(file);
 }
 
-int main() {
-    int num_boards;
-    printf("Enter the number of Sudoku boards to generate: ");
-    scanf("%d", &num_boards);
+int main(int argc, char** argv) {
+
+    if(argc != 2) {printf("Usage: %s num_boards\n", argv[0]); return -1; }
+    int num_boards = atoi(argv[1]);
 
     printf("Generating %d Sudoku boards...\n", num_boards);
 
