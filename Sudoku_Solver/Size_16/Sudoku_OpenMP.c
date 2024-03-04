@@ -189,7 +189,6 @@ int main(int argc, char** argv) {
 
     BoardQueue* solutions = (BoardQueue*)malloc(sizeof(BoardQueue));
     solutions->size = 0;
-    omp_set_num_threads(4);
 
     for (int i = 0; i < num_boards; i++) {
         PartionSolve(problems[i]);
@@ -202,13 +201,19 @@ int main(int argc, char** argv) {
     memory and task overhead).*/
 
     int num_partions = 1;
+    //omp_lock_t lock;
+    //omp_init_lock(&lock);
+    //omp_set_num_threads(4);
 
     // Start time
     clock_t start = clock();  
 
+    #pragma omp parallel
     while(solutions->size != num_boards){
-        #pragma omp parallel for schedule(dynamic) shared(solutions)
+        #pragma omp parallel for schedule(dynamic) shared(solutions) num_threads(2)
         for (int i = 0; i < num_boards; i++) {
+            //int tid = omp_get_thread_num();
+            //omp_set_lock(&lock);
             if(problems[i]->solved == 0){
                 if (SolveSudoku(problems[i]->data[0], 0, 0)) {
                     solutions->data[i] = (Board*)malloc(sizeof(Board));
@@ -223,6 +228,7 @@ int main(int argc, char** argv) {
             }
         }
         num_partions++;
+        //omp_unset_lock(&lock);
     }
 
     // End time
