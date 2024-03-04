@@ -1,3 +1,17 @@
+9x9
+lish6557@arrhenius:~/HPP/Sudoku_Solver/Size_9$ ./sol 10000
+Time taken: 0.404966 seconds
+lish6557@arrhenius:~/HPP/Sudoku_Solver/Size_9$ ./omp 10000
+Time taken: 0.149847 seconds
+Solved 10000 Sudoku boards.
+
+lish6557@arrhenius:~/HPP/Sudoku_Solver/Size_9$ ./omp 1000
+Time taken: 0.017895 seconds
+Solved 1000 Sudoku boards.
+lish6557@arrhenius:~/HPP/Sudoku_Solver/Size_9$ ./sol 1000
+Time taken: 0.040439 seconds
+
+
 16x16
 
 lish6557@arrhenius:~/HPP/Sudoku_Solver/Size_16$ ./sol 10000
@@ -14,12 +28,13 @@ Time taken: 0.134239 seconds
 
 25x25
 lish6557@arrhenius:~/HPP/Sudoku_Solver/Size_25$ ./sol 10000
-Time taken: 2.763534 seconds
+Time taken: 3.164957 seconds
 lish6557@arrhenius:~/HPP/Sudoku_Solver/Size_25$ ./omp 10000
-Time taken: 1.300886 seconds
+Time taken: 1.312254 seconds
+Solved 10000 Sudoku boards.
 
 lish6557@arrhenius:~/HPP/Sudoku_Solver/Size_25$ ./omp 1000
-Time taken: 0.145615 seconds
+Time taken: 0.132246 seconds
 Solved 1000 Sudoku boards.
 lish6557@arrhenius:~/HPP/Sudoku_Solver/Size_25$ ./sol 1000
-Time taken: 0.295201 seconds
+Time taken: 0.311416 seconds

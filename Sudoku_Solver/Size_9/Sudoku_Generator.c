@@ -75,7 +75,7 @@ int SolveSudoku(int board[BoardSize][BoardSize], int row, int col) {
 
 void SwapBoard(int board[BoardSize][BoardSize]) {
     // Swap rows and columns to get a new board
-    // There are 9 ways to swap the rows and columns
+    // There are 9 ways to swap the rows and columns for a 9x9 Sudoku
     int choice[9][2] = {{0, 1}, {0, 2}, {1, 2}, {3, 4}, {3, 5}, {4, 5}, {6, 7}, {6, 8}, {7, 8}};
     int numtoswap = rand() % 9; // The number of swaps
     for (int i = 0; i < numtoswap; i++) {
@@ -103,30 +103,18 @@ void RemoveNumbers(int board[BoardSize][BoardSize], int cellsToRemove) {
         int x = rand() % BoardSize;
         int y = rand() % BoardSize;
         if (board[x][y] != 0) {
+            int temp = board[x][y];
             board[x][y] = 0;
-            cellsToRemove--;
-        }
-    }
-    // Create a copy of the board
-    int testboard[BoardSize][BoardSize];
-    for (int i = 0; i < BoardSize; i++) {
-        for (int j = 0; j < BoardSize; j++) {
-            testboard[i][j] = board[i][j];
-        }
-    }
-    // Check if the board has a unique solution
-    if (SolveSudoku(testboard, 0, 0) == 0) {
-        // Add some numbers back to the board
-        int cellsToAdd = rand() % 5 + 1;
-        while (cellsToAdd > 0) {
-            int x = rand() % BoardSize;
-            int y = rand() % BoardSize;
-            if (board[x][y] == 0) {
-                int num = rand() % BoardSize + 1;
-                if (ValidateBoard(board, x, y, num)) {
-                    board[x][y] = num;
-                    cellsToAdd--;
+            int testboard[BoardSize][BoardSize];
+            for (int i = 0; i < BoardSize; i++) {
+                for (int j = 0; j < BoardSize; j++) {
+                    testboard[i][j] = board[i][j];
                 }
+            }
+            if (SolveSudoku(testboard, 0, 0) != 1) {
+                board[x][y] = temp;
+            } else {
+            cellsToRemove--;
             }
         }
     }
@@ -134,14 +122,10 @@ void RemoveNumbers(int board[BoardSize][BoardSize], int cellsToRemove) {
 
 void WriteBoardToFile(int board[BoardSize][BoardSize], const char *filename) {
     FILE *file = fopen(filename, "a");
-    if (file == NULL) {
-        printf("Error opening file.\n");
-        return;
-    }
 
     for (int i = 0; i < BoardSize; i++) {
         for (int j = 0; j < BoardSize; j++) {
-            fprintf(file, "%d ", board[i][j]);
+            fprintf(file, "%2d ", board[i][j]);
         }
         fprintf(file, "\n");
     }
@@ -150,24 +134,21 @@ void WriteBoardToFile(int board[BoardSize][BoardSize], const char *filename) {
     fclose(file);
 }
 
-int main() {
+int main(int argc, char** argv) {
 
-    int num_boards = 1;
+    if(argc != 2) {printf("Usage: %s num_boards\n", argv[0]); return -1; }
+    int num_boards = atoi(argv[1]);
 
     printf("Generating %d Sudoku boards...\n", num_boards);
 
     FILE *output_file = fopen("sudoku_boards.txt", "w");
-    if (output_file == NULL) {
-        printf("Error opening output file.\n");
-        return 1;
-    }
 
     srand(1234); // Set a seed for random number generation
     
     // Start time
     clock_t start = clock();
     for (int i = 0; i < num_boards; i++) {
-        int board[BoardSize][BoardSize] = {
+    int board[BoardSize][BoardSize] = {
             {5, 3, 4, 6, 7, 8, 9, 1, 2},
             {6, 7, 2, 1, 9, 5, 3, 4, 8},
             {1, 9, 8, 3, 4, 2, 5, 6, 7},
@@ -179,7 +160,7 @@ int main() {
             {3, 4, 5, 2, 8, 6, 1, 7, 9}
         };
         SwapBoard(board);
-        // Remove 24-28 cells to get a Sudoku puzzle
+        // Remove 24-28 cells from the board
         int cellsToRemove = rand() % 5 + 24;
         RemoveNumbers(board, cellsToRemove);
         WriteBoardToFile(board, "sudoku_boards.txt");
