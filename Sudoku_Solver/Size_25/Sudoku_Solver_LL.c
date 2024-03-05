@@ -5,14 +5,14 @@
 
 #define BoardSize 25
 #define BoxSize 5
-#define Max_Sudoku 20000
-
-typedef struct {
+//#define Max_Sudoku 10000
+typedef struct Board {
     int data[BoardSize * BoardSize];
-} Board;
+    struct Board* next;
+}Board;
 
 typedef struct {
-    Board* data[Max_Sudoku];
+    struct Board* list;
     int size;
     int solved;
 } BoardQueue;
@@ -36,26 +36,68 @@ int ValidateBoard(Board* board, int x, int y, int num) {
     return 1;
 }
 
+int SolveSudoku(Board* board, int x, int y) {
+    if (x == BoardSize - 1 && y == BoardSize) {
+        return 1;
+    }
+    if (y == BoardSize) {
+        x++;
+        y = 0;
+    }
+    if (board->data[x * BoardSize + y] != 0) {
+        return SolveSudoku(board, x, y + 1);
+    }
+    for (int num = 1; num <= BoardSize; num++) {
+        if (ValidateBoard(board, x, y, num)) {
+            board->data[x * BoardSize + y] = num;
+            if (SolveSudoku(board, x, y + 1)) {
+                return 1;
+            }
+            board->data[x * BoardSize + y] = 0;
+        }
+    }
+    return 0;
+}
+
 void FreeBoardQueue(BoardQueue* boards) {
-    for (int i = 0; i < boards->size; i++) {
-        free(boards->data[i]);
+    Board* current = boards->list;
+    while (current) {
+        Board* next = current->next;
+        free(current);
+        current = next;
     }
     free(boards);
 }
 
 void PushBack(BoardQueue* boards, const Board* board) {
     Board* newBoard = (Board*)malloc(sizeof(Board));
+    // Copy the data from the board to the new board
     for (int i = 0; i < BoardSize * BoardSize; i++) {
         newBoard->data[i] = board->data[i];
     }
-    boards->data[boards->size++] = newBoard;
+    newBoard->next = NULL;
+
+    // Add the new board to the end of the list
+    Board* last = boards->list;
+    if (last) {
+        while (last->next) {
+            last = last->next;
+        }
+        last->next = newBoard;
+    }
+    else {
+        boards->list = newBoard;
+    }
+    boards->size++;
 } // Pushes a board to the back of the queue
 
 void PopFront(BoardQueue* boards) {
-    free(boards->data[0]);
-    for (int i = 0; i < boards->size - 1; i++) {
-        boards->data[i] = boards->data[i + 1];
+    if(boards->list == NULL) {
+        return;
     }
+    Board* temp = boards->list;
+    boards->list = boards->list->next;
+    free(temp);
     boards->size--;
 } // Pops the front board from the queue
 
@@ -64,10 +106,10 @@ int QueueSize(const BoardQueue* boards) {
 }
 
 void PartionSolve(BoardQueue* boards) {
-    if (QueueSize(boards) <= 0) {
+    if (boards->list == NULL) {
         return;
     }
-    Board* fboard = boards->data[0];
+    Board* fboard = boards->list;
     int index = -1;
     for (int i = 0; i < BoardSize * BoardSize; i++) {
         if (fboard->data[i] == 0) {
@@ -90,53 +132,39 @@ void PartionSolve(BoardQueue* boards) {
     PopFront(boards);
 }
 
-void DisorderQueue(BoardQueue* boards) {
-    BoardQueue* tboards = (BoardQueue*)malloc(sizeof(BoardQueue));
-    tboards->size = boards -> size;
-
-    for (int i = 0; i < boards->size; ++i) {
-        tboards->data[i] = (Board*)malloc(sizeof(Board));
-        tboards->data[i] = boards->data[i];
-        boards->data[i] = NULL;
+void Shuffle(BoardQueue* boards) {
+    if (boards->size <= 1) {
+        return;
     }
 
-    srand(1234); // Set random seed
-    for (int i = 0; i < boards->size - 1; ++i) {
-        int j = i + rand() / (RAND_MAX / (boards->size - i) + 1);
-        Board* temp = tboards->data[j];
-        tboards->data[j] = tboards->data[i];
-        tboards->data[i] = temp;
+    Board** boardArray = (Board**)malloc(boards->size * sizeof(Board*));
+    Board* current = boards->list;
+    int index = 0;
+    while (current != NULL) {
+        boardArray[index++] = current;
+        current = current->next;
     }
 
-    for (int i = 0; i < boards->size; ++i) {
-        boards->data[i] = tboards->data[i];
+    // Fisher-Yates
+    srand(time(NULL)); // Seed the random number generator
+    for (int i = boards->size - 1; i > 0; i--) {
+        int j = rand() % (i + 1);
+        // Swap boardArray[i] and boardArray[j]
+        Board* temp = boardArray[i];
+        boardArray[i] = boardArray[j];
+        boardArray[j] = temp;
     }
 
-    FreeBoardQueue(tboards);
-}
+    // Reconstruct the queue
+    boards->list = boardArray[0];
+    current = boards->list;
+    for (int i = 1; i < boards->size; i++) {
+        current->next = boardArray[i];
+        current = current->next;
+    }
+    current->next = NULL;
 
-
-int SolveSudoku(Board* board, int x, int y) {
-    if (x == BoardSize - 1 && y == BoardSize) {
-        return 1;
-    }
-    if (y == BoardSize) {
-        x++;
-        y = 0;
-    }
-    if (board->data[x * BoardSize + y] != 0) {
-        return SolveSudoku(board, x, y + 1);
-    }
-    for (int num = 1; num <= BoardSize; num++) {
-        if (ValidateBoard(board, x, y, num)) {
-            board->data[x * BoardSize + y] = num;
-            if (SolveSudoku(board, x, y + 1)) {
-                return 1;
-            }
-            board->data[x * BoardSize + y] = 0;
-        }
-    }
-    return 0;
+    free(boardArray);
 }
 
 void WriteBoardToFile(Board* board, FILE *file) {
@@ -177,14 +205,17 @@ int main(int argc, char** argv) {
         fclose(input_file);
         return 1;
     }
-    
+
     BoardQueue** problems = (BoardQueue**)malloc(num_boards * sizeof(BoardQueue*));
     for (int i = 0; i < num_boards; i++) {
         problems[i] = (BoardQueue*)malloc(sizeof(BoardQueue));
         problems[i]->size = 1;
         problems[i]->solved = 0;
-        problems[i]->data[0] = (Board*)malloc(sizeof(Board));
-        ReadBoardFromFile(problems[i]->data[0], input_file);
+
+        struct Board *head = (struct Board*)malloc(sizeof(struct Board));
+        ReadBoardFromFile(head, input_file);
+        problems[i]->list = head;
+        head->next = NULL;
     }
 
     BoardQueue* solutions = (BoardQueue*)malloc(sizeof(BoardQueue));
@@ -193,12 +224,6 @@ int main(int argc, char** argv) {
     for (int i = 0; i < num_boards; i++) {
         PartionSolve(problems[i]);
     }
-
-    /*Checking one guess is an independent parallel task but two tasks can not work 
-    on the same board at the same time. When the solution is found, no more tasks should be 
-    issued and previous tasks cancelled. Note, tasks can be created inside tasks to create enough 
-    work for the threads in the task queue but too small tasks should be avoided (due to 
-    memory and task overhead).*/
 
     int num_partions = 1;
     omp_set_num_threads(4);
@@ -211,15 +236,15 @@ int main(int argc, char** argv) {
         #pragma omp parallel for schedule(dynamic)// shared(solutions)
         for (int i = 0; i < num_boards; i++) {
             if(problems[i]->solved == 0){
-                if (SolveSudoku(problems[i]->data[0], 0, 0)) {
-                    solutions->data[i] = (Board*)malloc(sizeof(Board));
-                    PushBack(solutions, problems[i]->data[0]);
+                if (SolveSudoku(problems[i]->list, 0, 0)) {
+                    solutions->list = (Board*)malloc(sizeof(Board));
+                    PushBack(solutions, problems[i]->list);
                     problems[i]->solved = 1;
                 }
                 else if (num_partions < num_boards % 4){
                     PopFront(problems[i]);
                     PartionSolve(problems[i]);
-                    DisorderQueue(problems[i]);
+                    Shuffle(problems[i]);
                 }
             }
         }
@@ -238,12 +263,13 @@ int main(int argc, char** argv) {
     printf("Solved %d Sudoku boards.\n", QueueSize(solutions));
 
     for (int i = 0; i < num_boards; i++) {
-        WriteBoardToFile(solutions->data[i], output_file);
+        WriteBoardToFile(solutions->list, output_file);
     }
 
     for (int i = 0; i < num_boards; i++) {       
         FreeBoardQueue(problems[i]);
     }
+    free(problems);
     FreeBoardQueue(solutions);
 
     fclose(output_file);

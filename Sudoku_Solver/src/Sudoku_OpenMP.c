@@ -3,9 +3,10 @@
 #include <time.h>
 #include <omp.h>
 
+/*when try to switch board sizes, you should modify lines 7,8 accrodingly*/
 #define BoardSize 25
 #define BoxSize 5
-#define Max_Sudoku 20000
+#define Max_Sudoku 10000 //Maximum number of Sudoku problems that can be entered
 
 typedef struct {
     int data[BoardSize * BoardSize];
@@ -31,7 +32,7 @@ int ValidateBoard(Board* board, int x, int y, int num) {
         if (board->data[(x - x % BoxSize + i / BoxSize) * BoardSize + (y - y % BoxSize + i % BoxSize)] == num) {
             return 0;
         }
-    } // Check the 4x4 box
+    } // Check the box
 
     return 1;
 }
@@ -216,7 +217,7 @@ int main(int argc, char** argv) {
                     PushBack(solutions, problems[i]->data[0]);
                     problems[i]->solved = 1;
                 }
-                else if (num_partions < num_boards % 4){
+                else if (num_partions < num_boards % 10){
                     PopFront(problems[i]);
                     PartionSolve(problems[i]);
                     DisorderQueue(problems[i]);

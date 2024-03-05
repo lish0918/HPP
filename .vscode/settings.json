@@ -10,6 +10,7 @@
         "hash_set": "c",
         "ostream": "cpp",
         "atomic": "c",
-        "OpenMP.C": "cpp"
+        "OpenMP.C": "cpp",
+        "time.h": "c"
     }
 }
