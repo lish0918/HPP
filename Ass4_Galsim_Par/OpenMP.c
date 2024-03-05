@@ -116,7 +116,13 @@ int main(int argc, char *argv[]) {
     }
     
     read_initial_configuration(filename, particles, N);
+    
+    double start_time = omp_get_wtime(); 
     simulate(particles, forces, N, nsteps, delta_t, n_threads);
+    double end_time = omp_get_wtime();  // End time using omp_get_wtime()
+    double time_wtime = end_time - start_time;
+    printf("Time wtime: %f seconds\n", time_wtime);
+
     write_results("result.gal", particles, N);
 
     free(particles);
