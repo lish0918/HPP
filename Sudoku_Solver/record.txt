@@ -11,6 +11,14 @@ Solved 1000 Sudoku boards.
 lish6557@arrhenius:~/HPP/Sudoku_Solver/Size_9$ ./sol 1000
 Time taken: 0.040439 seconds
 
+lish6557@arrhenius:~/HPP/Sudoku_Solver/Size_9$ ./omp 1000
+Time wtime: 0.005548 seconds
+Time taken: 0.011288 seconds
+Solved 1000 Sudoku boards.
+lish6557@arrhenius:~/HPP/Sudoku_Solver/Size_9$ ./omp 10000
+Time wtime: 0.043544 seconds
+Time taken: 0.171493 seconds
+Solved 10000 Sudoku boards.
 
 16x16
 
@@ -26,6 +34,52 @@ lish6557@arrhenius:~/HPP/Sudoku_Solver/Size_16$ ./sol 1000
 Time taken: 0.134239 seconds
 
 
+--------2 threads--------------
+lish6557@arrhenius:~/HPP/Sudoku_Solver/Size_16$ ./omp 10000
+Time wtime: 0.229449 seconds
+Time taken: 0.455323 seconds
+Solved 10000 Sudoku boards.
+
+--------3 threads--------------
+lish6557@arrhenius:~/HPP/Sudoku_Solver/Size_16$ ./omp 10000
+Time wtime: 0.156192 seconds
+Time taken: 0.466451 seconds
+Solved 10000 Sudoku boards.
+
+--------4 threads--------------
+lish6557@arrhenius:~/HPP/Sudoku_Solver/Size_16$ ./omp 1000
+Time wtime: 0.012523 seconds
+Time taken: 0.042557 seconds
+Solved 1000 Sudoku boards.
+lish6557@arrhenius:~/HPP/Sudoku_Solver/Size_16$ ./omp 10000
+Time wtime: 0.121107 seconds
+Time taken: 0.479717 seconds
+Solved 10000 Sudoku boards.
+
+--------5 threads--------------
+lish6557@arrhenius:~/HPP/Sudoku_Solver/Size_16$ ./omp 10000
+Time wtime: 0.096519 seconds
+Time taken: 0.474318 seconds
+Solved 10000 Sudoku boards.
+
+--------6 threads--------------
+lish6557@arrhenius:~/HPP/Sudoku_Solver/Size_16$ ./omp 10000
+Time wtime: 0.083710 seconds
+Time taken: 0.497202 seconds
+Solved 10000 Sudoku boards.
+
+--------7 threads--------------
+lish6557@arrhenius:~/HPP/Sudoku_Solver/Size_16$ ./omp 1000
+Time wtime: 0.080550 seconds
+Time taken: 0.477200 seconds
+Solved 1000 Sudoku boards.
+
+--------8 threads--------------
+lish6557@arrhenius:~/HPP/Sudoku_Solver/Size_16$ ./omp 1000
+Time wtime: 0.074870 seconds
+Time taken: 0.477240 seconds
+Solved 1000 Sudoku boards.
+
 25x25
 lish6557@arrhenius:~/HPP/Sudoku_Solver/Size_25$ ./sol 10000
 Time taken: 3.164957 seconds
@@ -38,3 +92,81 @@ Time taken: 0.132246 seconds
 Solved 1000 Sudoku boards.
 lish6557@arrhenius:~/HPP/Sudoku_Solver/Size_25$ ./sol 1000
 Time taken: 0.311416 seconds
+
+--------2 threads--------------
+lish6557@arrhenius:~/HPP/Sudoku_Solver/Size_25$ ./omp 1000
+Time wtime: 0.070044 seconds
+Time taken: 0.138912 seconds
+Solved 1000 Sudoku boards.
+
+--------3 threads--------------
+lish6557@arrhenius:~/HPP/Sudoku_Solver/Size_25$ ./omp 1000
+Time wtime: 0.048012 seconds
+Time taken: 0.139309 seconds
+Solved 1000 Sudoku boards.
+
+--------4 threads--------------
+lish6557@arrhenius:~/HPP/Sudoku_Solver/Size_25$ ./omp 1000
+Time wtime: 0.037497 seconds
+Time taken: 0.145688 seconds
+Solved 1000 Sudoku boards.
+lish6557@arrhenius:~/HPP/Sudoku_Solver/Size_25$ ./omp 10000
+Time wtime: 0.323374 seconds
+Time taken: 1.289777 seconds
+Solved 10000 Sudoku boards.
+
+--------5 threads--------------
+lish6557@arrhenius:~/HPP/Sudoku_Solver/Size_25$ ./omp 1000
+Time wtime: 0.030183 seconds
+Time taken: 0.143728 seconds
+Solved 1000 Sudoku boards.
+
+--------6 threads--------------
+lish6557@arrhenius:~/HPP/Sudoku_Solver/Size_25$ ./omp 1000
+Time wtime: 0.026342 seconds
+Time taken: 0.154355 seconds
+Solved 1000 Sudoku boards.
+
+--------7 threads--------------
+lish6557@arrhenius:~/HPP/Sudoku_Solver/Size_25$ ./omp 1000
+Time wtime: 0.022210 seconds
+Time taken: 0.152593 seconds
+Solved 1000 Sudoku boards.
+
+--------8 threads--------------
+lish6557@arrhenius:~/HPP/Sudoku_Solver/Size_25$ ./omp 1000
+Time wtime: 0.020265 seconds
+Time taken: 0.154425 seconds
+Solved 1000 Sudoku boards.
+
+针对10000，25
+lish6557@arrhenius:~/HPP/Sudoku_Solver/Size_25$ gcc -O3 -fopenmp -o omp Sudoku_OpenMP.c
+lish6557@arrhenius:~/HPP/Sudoku_Solver/Size_25$ ./omp 10000
+Time wtime: 0.111731 seconds
+Time taken: 0.442887 seconds
+Solved 10000 Sudoku boards.
+lish6557@arrhenius:~/HPP/Sudoku_Solver/Size_25$ gcc -fopenmp -o omp Sudoku_OpenMP.c
+lish6557@arrhenius:~/HPP/Sudoku_Solver/Size_25$ ./omp 10000
+Time wtime: 0.333980 seconds
+Time taken: 1.322402 seconds
+Solved 10000 Sudoku boards.
+lish6557@arrhenius:~/HPP/Sudoku_Solver/Size_25$ gcc -O1 -fopenmp -o omp Sudoku_OpenMP.c
+lish6557@arrhenius:~/HPP/Sudoku_Solver/Size_25$ ./omp 10000
+Time wtime: 0.145276 seconds
+Time taken: 0.575430 seconds
+Solved 10000 Sudoku boards.
+lish6557@arrhenius:~/HPP/Sudoku_Solver/Size_25$ gcc -O2 -fopenmp -o omp Sudoku_OpenMP.c
+lish6557@arrhenius:~/HPP/Sudoku_Solver/Size_25$ ./omp 10000
+Time wtime: 0.127269 seconds
+Time taken: 0.504391 seconds
+Solved 10000 Sudoku boards.
+lish6557@arrhenius:~/HPP/Sudoku_Solver/Size_25$ gcc -O4 -fopenmp -o omp Sudoku_OpenMP.c
+lish6557@arrhenius:~/HPP/Sudoku_Solver/Size_25$ ./omp 10000
+Time wtime: 0.119273 seconds
+Time taken: 0.470873 seconds
+Solved 10000 Sudoku boards.
+lish6557@arrhenius:~/HPP/Sudoku_Solver/Size_25$ gcc -Ofast -fopenmp -o omp Sudoku_OpenMP.c
+lish6557@arrhenius:~/HPP/Sudoku_Solver/Size_25$ ./omp 10000
+Time wtime: 0.115270 seconds
+Time taken: 0.454728 seconds
+Solved 10000 Sudoku boards.

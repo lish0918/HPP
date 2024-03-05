@@ -189,7 +189,6 @@ int main(int argc, char** argv) {
 
     BoardQueue* solutions = (BoardQueue*)malloc(sizeof(BoardQueue));
     solutions->size = 0;
-    omp_set_num_threads(4);
 
     for (int i = 0; i < num_boards; i++) {
         PartionSolve(problems[i]);
@@ -202,12 +201,14 @@ int main(int argc, char** argv) {
     memory and task overhead).*/
 
     int num_partions = 1;
+    omp_set_num_threads(4);
 
     // Start time
+    double start_time = omp_get_wtime();  
     clock_t start = clock();  
 
     while(solutions->size != num_boards){
-        #pragma omp parallel for schedule(dynamic) shared(solutions)
+        #pragma omp parallel for schedule(dynamic)// shared(solutions)
         for (int i = 0; i < num_boards; i++) {
             if(problems[i]->solved == 0){
                 if (SolveSudoku(problems[i]->data[0], 0, 0)) {
@@ -215,7 +216,7 @@ int main(int argc, char** argv) {
                     PushBack(solutions, problems[i]->data[0]);
                     problems[i]->solved = 1;
                 }
-                else if (num_partions < num_boards % 10){
+                else if (num_partions < num_boards % 4){
                     PopFront(problems[i]);
                     PartionSolve(problems[i]);
                     DisorderQueue(problems[i]);
@@ -226,6 +227,10 @@ int main(int argc, char** argv) {
     }
 
     // End time
+    double end_time = omp_get_wtime();  // End time using omp_get_wtime()
+    double time_wtime = end_time - start_time;
+    printf("Time wtime: %f seconds\n", time_wtime);
+
     clock_t end = clock();
     double time_taken = ((double)(end - start)) / CLOCKS_PER_SEC;
     printf("Time taken: %f seconds\n", time_taken);

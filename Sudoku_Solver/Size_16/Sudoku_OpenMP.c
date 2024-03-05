@@ -201,19 +201,15 @@ int main(int argc, char** argv) {
     memory and task overhead).*/
 
     int num_partions = 1;
-    //omp_lock_t lock;
-    //omp_init_lock(&lock);
-    //omp_set_num_threads(4);
+    omp_set_num_threads(8);
 
     // Start time
+    double start_time = omp_get_wtime();  
     clock_t start = clock();  
 
-    #pragma omp parallel
     while(solutions->size != num_boards){
-        #pragma omp parallel for schedule(dynamic) shared(solutions) num_threads(2)
+        #pragma omp parallel for schedule(dynamic)// shared(solutions)
         for (int i = 0; i < num_boards; i++) {
-            //int tid = omp_get_thread_num();
-            //omp_set_lock(&lock);
             if(problems[i]->solved == 0){
                 if (SolveSudoku(problems[i]->data[0], 0, 0)) {
                     solutions->data[i] = (Board*)malloc(sizeof(Board));
@@ -228,10 +224,13 @@ int main(int argc, char** argv) {
             }
         }
         num_partions++;
-        //omp_unset_lock(&lock);
     }
 
     // End time
+    double end_time = omp_get_wtime();  // End time using omp_get_wtime()
+    double time_wtime = end_time - start_time;
+    printf("Time wtime: %f seconds\n", time_wtime);
+
     clock_t end = clock();
     double time_taken = ((double)(end - start)) / CLOCKS_PER_SEC;
     printf("Time taken: %f seconds\n", time_taken);
