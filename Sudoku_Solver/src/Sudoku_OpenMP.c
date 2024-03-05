@@ -91,7 +91,7 @@ void PartionSolve(BoardQueue* boards) {
     PopFront(boards);
 }
 
-void DisorderQueue(BoardQueue* boards) {
+void Shuffle(BoardQueue* boards) {
     BoardQueue* tboards = (BoardQueue*)malloc(sizeof(BoardQueue));
     tboards->size = boards -> size;
 
@@ -220,7 +220,7 @@ int main(int argc, char** argv) {
                 else if (num_partions < num_boards % 10){
                     PopFront(problems[i]);
                     PartionSolve(problems[i]);
-                    DisorderQueue(problems[i]);
+                    Shuffle(problems[i]);
                 }
             }
         }
