@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 
 #define BoardSize 64
@@ -185,22 +186,13 @@ void WriteBoardToFile(int board[BoardSize][BoardSize], const char *filename) {
 
 int main(int argc, char** argv) {
 
-    if(argc != 2) {printf("Usage: %s num_boards\n", argv[0]); return -1; }
-    int num_boards = atoi(argv[1]);
-    
-    printf("Generating %d Sudoku boards...\n", num_boards);
-
-    FILE *output_file = fopen("sudoku_boards.txt", "w");
-    if (output_file == NULL) {
-        printf("Error opening output file.\n");
-        return 1;
-    }
+    if(argc != 2) {printf("Usage: %s cellsToRemove\n", argv[0]); return -1; }
+    int cellsToRemove = atoi(argv[1]);
 
     srand(1234); // Set a seed for random number generation
     
     // Start time
     clock_t start = clock();
-    for (int i = 0; i < num_boards; i++) {
         int board[BoardSize][BoardSize] = {
             {40, 37, 7, 57, 10, 35, 26, 20, 34, 62, 33, 41, 51, 30, 3, 18, 32, 6, 58, 47, 38, 14, 45, 31, 29, 4, 59, 1, 27, 54, 63, 21, 50, 36, 39, 52, 61, 24, 19, 12, 48, 28, 56, 44, 25, 60, 8, 13, 16, 49, 55, 53, 11, 15, 2, 17, 42, 64, 5, 23, 22, 43, 9, 46},
             {56, 15, 13, 21, 61, 47, 38, 18, 31, 29, 32, 54, 16, 4, 46, 11, 25, 19, 30, 43, 55, 2, 49, 8, 39, 57, 20, 36, 12, 17, 62, 60, 40, 48, 26, 42, 23, 41, 45, 51, 34, 58, 52, 33, 27, 14, 37, 50, 64, 9, 24, 3, 63, 59, 22, 5, 53, 28, 6, 7, 10, 1, 44, 35},
@@ -269,17 +261,36 @@ int main(int argc, char** argv) {
         };
         //SwapBoard(board);
         // Remove numbers
-        int cellsToRemove = 400;
-        RemoveNumbers(board, cellsToRemove);
-        WriteBoardToFile(board, "sudoku_boards.txt");
+    RemoveNumbers(board, cellsToRemove);
+    char path[100] = '64_';
+    if (cellsToRemove <= 400)
+    {
+        strcat(path, "easy.txt");
     }
+    else if (cellsToRemove <= 800)
+    {
+        strcat(path, "medium.txt");
+    }
+    else
+    {
+        strcat(path, "hard.txt");
+    }
+
+    FILE *output_file = fopen(path, "w");
+    if (output_file == NULL) {
+        printf("Error opening output file.\n");
+        return 1;
+    }
+    
+    WriteBoardToFile(board, path);
+
     // End time
     clock_t end = clock();
     double time_taken = ((double)(end - start)) / CLOCKS_PER_SEC;
     printf("Time taken: %f seconds\n", time_taken);
 
     fclose(output_file);
-    printf("Sudoku boards generated and saved to %s\n", "sudoku_boards.txt");
+    printf("Sudoku boards generated and saved to %s\n", path);
 
     return 0;
 }

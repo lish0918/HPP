@@ -7,9 +7,9 @@
 #include <omp.h>
 #include <time.h>
 
-#define BoardSize 64
-#define BoxSize 8
-#define Threshold 10
+#define BoardSize 25
+#define BoxSize 5
+#define Threshold 20
 
 double start_time;
 clock_t start;
@@ -113,7 +113,7 @@ int main(int argc, char** argv) {
     if(argc != 2) {printf("Usage: %s n_threads\n", argv[0]); return -1; }
     int n_threads = atoi(argv[1]);
     //int n_threads = 4;
-    FILE *input_file = fopen("sudoku_boards.txt", "r");
+    FILE *input_file = fopen("25_hard.txt", "r");
     FILE *output_file = fopen("sudoku_solutions.txt", "w");
 
     if (input_file == NULL) {
@@ -135,7 +135,7 @@ int main(int argc, char** argv) {
     //printf("\n");
     //printf("Solved Sudoku: \n");   	   
 
-    //start_time = omp_get_wtime(); 
+    start_time = omp_get_wtime(); 
     start = clock(); 
     #pragma omp parallel default(none) shared(sudoku) num_threads(n_threads)
 	#pragma omp single nowait
@@ -144,9 +144,9 @@ int main(int argc, char** argv) {
 	}
     //PrintBoard(solution);
     WriteBoardToFile(solution, output_file);
-    //double end_time = omp_get_wtime(); 
-    //double time_wtime = end_time - start_time;
-    //printf("Time wtime: %f seconds\n", time_wtime);
+    double end_time = omp_get_wtime(); 
+    double time_wtime = end_time - start_time;
+    printf("Time wtime: %f seconds\n", time_wtime);
 
     clock_t end = clock();
     double time_taken = ((double)(end - start)) / CLOCKS_PER_SEC;
