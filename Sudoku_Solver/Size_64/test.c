@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-#define BoardSize 25
-#define BoxSize 5
+#define BoardSize 64
+#define BoxSize 8
 
 bool isSudoku(int matrix[][BoardSize]) {
     // Check each row and column
@@ -25,7 +25,7 @@ bool isSudoku(int matrix[][BoardSize]) {
         }
     }
 
-    // Check each 5x5 block
+    // Check each 8x8 block
     for (int blockRow = 0; blockRow < BoardSize; blockRow += BoxSize) {
         for (int blockCol = 0; blockCol < BoardSize; blockCol += BoxSize) {
             bool blockCheck[BoardSize + 1] = {false};

@@ -11,6 +11,7 @@
         "ostream": "cpp",
         "atomic": "c",
         "OpenMP.C": "cpp",
-        "time.h": "c"
+        "time.h": "c",
+        "*.tcc": "c"
     }
 }
