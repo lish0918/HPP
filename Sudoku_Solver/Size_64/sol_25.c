@@ -8,9 +8,6 @@
 #define BoxSize 5
 #define Threshold 100
 
-double start_time;
-clock_t start;
-
 int solution_found = 0;
 int solution[BoardSize * BoardSize];
 
@@ -82,7 +79,7 @@ int Solve(int board[BoardSize * BoardSize], int level) {
     {
         for (int val = 1; val <= BoardSize; val++) {
             if (ValidateBoard(board, x, y, val)) {
-                #pragma omp task firstprivate(board, x, y, val, level) shared(start_time, start, solution, solution_found) final(level > Threshold)
+                #pragma omp task firstprivate(board, x, y, val, level) shared(solution, solution_found) final(level > Threshold)
                 {
                     int *copy_board;
                     copy_board = (int *)malloc(BoardSize * BoardSize * sizeof(int));
@@ -138,9 +135,9 @@ int main(int argc, char** argv) {
     //printf("Solved Sudoku: \n");   	   
 
     #ifdef _OPENMP
-    start_time = omp_get_wtime(); 
+    double start_time = omp_get_wtime(); 
     #endif
-    start = clock(); 
+    clock_t start = clock(); 
 
     #ifdef _OPENMP
     omp_set_num_threads(n_threads);
