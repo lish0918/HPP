@@ -262,7 +262,7 @@ int main(int argc, char** argv) {
         //SwapBoard(board);
         // Remove numbers
     RemoveNumbers(board, cellsToRemove);
-    char path[100] = '64_';
+    char path[100] = "64_";
     if (cellsToRemove <= 400)
     {
         strcat(path, "easy.txt");

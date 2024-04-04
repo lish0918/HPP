@@ -4,8 +4,8 @@
 #include <omp.h>
 #include <time.h>
 
-#define BoardSize 64
-#define BoxSize 8
+#define BoardSize 25
+#define BoxSize 5
 #define Threshold 100
 
 int solution_found = 0;
@@ -79,7 +79,7 @@ int Solve(int board[BoardSize * BoardSize], int level) {
     {
         for (int val = 1; val <= BoardSize; val++) {
             if (ValidateBoard(board, x, y, val)) {
-                #pragma omp task firstprivate(board, x, y, val, level) shared(solution, solution_found) final(level > Threshold)
+                #pragma omp task firstprivate(board, x, y, val, level) shared(solution, solution_found) if(level <= Threshold)
                 {
                     int *copy_board;
                     copy_board = (int *)malloc(BoardSize * BoardSize * sizeof(int));
@@ -112,7 +112,7 @@ int main(int argc, char** argv) {
     if(argc != 2) {printf("Usage: %s n_threads\n", argv[0]); return -1; }
     int n_threads = atoi(argv[1]);
     //int n_threads = 4;
-    FILE *input_file = fopen("64_hard.txt", "r");
+    FILE *input_file = fopen("25_hard.txt", "r");
     FILE *output_file = fopen("sudoku_solutions.txt", "w");
 
     if (input_file == NULL) {

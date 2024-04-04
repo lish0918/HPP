@@ -1,23 +1,21 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-#define BoardSize 25
-#define BoxSize 5
+/*when try to switch board sizes, you should modify lines 5,6 accrodingly*/
+#define BoardSize 49
+#define BoxSize 7
 
 bool isSudoku(int matrix[][BoardSize]) {
-    // Check each row and column
     for (int i = 0; i < BoardSize; i++) {
         bool rowCheck[BoardSize + 1] = {false};
         bool colCheck[BoardSize + 1] = {false};
 
         for (int j = 0; j < BoardSize; j++) {
-            // Check each row
             if (matrix[i][j] != 0 && rowCheck[matrix[i][j]]) {
                 return false;
             }
             rowCheck[matrix[i][j]] = true;
 
-            // Check each column
             if (matrix[j][i] != 0 && colCheck[matrix[j][i]]) {
                 return false;
             }
@@ -43,7 +41,7 @@ bool isSudoku(int matrix[][BoardSize]) {
 }
 
 void ReadBoardFromFile(int board[BoardSize][BoardSize], int unAssignInd[], int *N_unAssign, FILE *file) {
-    *N_unAssign = 0; // Initialize the number of unassigned cells
+    *N_unAssign = 0; 
 
     for (int x = 0; x < BoardSize; x++) {
         for (int y = 0; y < BoardSize; y++) {
@@ -51,7 +49,7 @@ void ReadBoardFromFile(int board[BoardSize][BoardSize], int unAssignInd[], int *
                 return;
             }
             if (board[x][y] == 0) {
-                unAssignInd[(*N_unAssign)++] = x * BoardSize + y; // Increment the count of unassigned cells
+                unAssignInd[(*N_unAssign)++] = x * BoardSize + y; 
             }
         }
     }
@@ -71,10 +69,8 @@ void main() {
     int num = 0;
 
     while (!feof(file)) {
-        // Read a solution
         ReadBoardFromFile(board, unAssignInd, &N_unAssign, file);
 
-        // Check if the solution is valid
         if (isSudoku(board)) {
             //printf("The Sudoku solution is valid.\n");
         } else {
