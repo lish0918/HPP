@@ -112,7 +112,7 @@ int main(int argc, char** argv) {
     if(argc != 2) {printf("Usage: %s n_threads\n", argv[0]); return -1; }
     int n_threads = atoi(argv[1]);
     //int n_threads = 4;
-    FILE *input_file = fopen("64_easy.txt", "r");
+    FILE *input_file = fopen("file/64_easy.txt", "r");
     FILE *output_file = fopen("sudoku_solutions.txt", "w");
 
     if (input_file == NULL) {
