@@ -6,7 +6,7 @@
 
 #define BoardSize 49
 #define BoxSize 7
-#define Threshold 100
+#define Threshold 300
 
 int solution_found = 0;
 int solution[BoardSize * BoardSize];
@@ -86,7 +86,7 @@ int Solve(int board[BoardSize * BoardSize], int level) {
                     memcpy(copy_board, board, BoardSize * BoardSize * sizeof(int));
                     copy_board[x * BoardSize + y] = val;
                     if (Solve(copy_board, level + 1)) {
-                        #pragma omp critical
+                        //#pragma omp critical
                         {
                             if (!solution_found) {
                                 //printf("%d\n",omp_get_thread_num());
@@ -102,7 +102,7 @@ int Solve(int board[BoardSize * BoardSize], int level) {
                 }
             }
         }
-        #pragma omp taskwait 
+        //#pragma omp taskwait 
     }
     return 0;
 }
@@ -112,7 +112,7 @@ int main(int argc, char** argv) {
     if(argc != 2) {printf("Usage: %s n_threads\n", argv[0]); return -1; }
     int n_threads = atoi(argv[1]);
     //int n_threads = 4;
-    FILE *input_file = fopen("file/49_medium.txt", "r");
+    FILE *input_file = fopen("file/49_hard.txt", "r");
     FILE *output_file = fopen("sudoku_solutions.txt", "w");
 
     if (input_file == NULL) {

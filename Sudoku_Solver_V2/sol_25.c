@@ -102,7 +102,7 @@ int Solve(int board[BoardSize * BoardSize], int level) {
                 }
             }
         }
-        #pragma omp taskwait 
+        //#pragma omp taskwait 
     }
     return 0;
 }

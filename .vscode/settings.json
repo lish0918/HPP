@@ -12,6 +12,7 @@
         "atomic": "c",
         "OpenMP.C": "cpp",
         "time.h": "c",
-        "*.tcc": "c"
+        "*.tcc": "c",
+        "stdbool.h": "c"
     }
 }

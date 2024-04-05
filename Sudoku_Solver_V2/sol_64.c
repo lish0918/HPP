@@ -6,7 +6,7 @@
 
 #define BoardSize 64
 #define BoxSize 8
-#define Threshold 300
+#define Threshold 400
 
 int solution_found = 0;
 int solution[BoardSize * BoardSize];
@@ -79,20 +79,17 @@ int Solve(int board[BoardSize * BoardSize], int level) {
     {
         for (int val = 1; val <= BoardSize; val++) {
             if (ValidateBoard(board, x, y, val)) {
-                #pragma omp task firstprivate(board, x, y, val, level) shared(solution, solution_found) if(level <= Threshold)
+                #pragma omp task firstprivate(board, x, y, val, level) shared(solution, solution_found) if(level%2 != 1)
                 {
                     int *copy_board;
                     copy_board = (int *)malloc(BoardSize * BoardSize * sizeof(int));
                     memcpy(copy_board, board, BoardSize * BoardSize * sizeof(int));
                     copy_board[x * BoardSize + y] = val;
                     if (Solve(copy_board, level + 1)) {
-                        #pragma omp critical
-                        {
-                            if (!solution_found) {
-                                //printf("%d\n",omp_get_thread_num());
-                                memcpy(solution, copy_board, BoardSize * BoardSize * sizeof(int));
-                                solution_found = 1;
-                            }
+                        if (!solution_found) {
+                            //printf("%d\n",omp_get_thread_num());
+                            memcpy(solution, copy_board, BoardSize * BoardSize * sizeof(int));
+                            solution_found = 1;
                         }
                         #pragma omp cancel taskgroup
                     }
@@ -102,7 +99,7 @@ int Solve(int board[BoardSize * BoardSize], int level) {
                 }
             }
         }
-        #pragma omp taskwait 
+        //#pragma omp taskwait 
     }
     return 0;
 }
@@ -112,7 +109,7 @@ int main(int argc, char** argv) {
     if(argc != 2) {printf("Usage: %s n_threads\n", argv[0]); return -1; }
     int n_threads = atoi(argv[1]);
     //int n_threads = 4;
-    FILE *input_file = fopen("file/64_easy.txt", "r");
+    FILE *input_file = fopen("file/64_hard.txt", "r");
     FILE *output_file = fopen("sudoku_solutions.txt", "w");
 
     if (input_file == NULL) {
@@ -142,7 +139,7 @@ int main(int argc, char** argv) {
     #ifdef _OPENMP
     omp_set_num_threads(n_threads);
     #endif
-    #pragma omp parallel shared(sudoku) 
+    #pragma omp parallel shared(sudoku)
 	#pragma omp single nowait
 	{
 	   Solve(sudoku,1);   
