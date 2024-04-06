@@ -2,9 +2,9 @@
 #include <time.h>
 #include <stdlib.h>
 
-/*when try to switch board sizes, you should modify lines 6,7,91 accrodingly*/
-#define BoardSize 49
-#define BoxSize 7
+/*when try to switch board sizes, you should modify lines 6,7,92 accrodingly*/
+#define BoardSize 36
+#define BoxSize 6
 
 int DuplicateNumbersinRow(int board[], int x, int num) {
     for (int y = 0; y < BoardSize; y++) {
@@ -89,7 +89,7 @@ void WriteBoardToFile(int board[], FILE *file) {
 
 int main() {
 
-    FILE *input_file = fopen("file/49_hard.txt", "r");
+    FILE *input_file = fopen("file/36_hard.txt", "r");
     FILE *output_file = fopen("sudoku_solutions.txt", "w");
 
     if (input_file == NULL || output_file == NULL) {

@@ -267,7 +267,7 @@ int main(int argc, char** argv) {
     {
         strcat(path, "easy.txt");
     }
-    else if (cellsToRemove <= 800)
+    else if (cellsToRemove <= 1000)
     {
         strcat(path, "medium.txt");
     }

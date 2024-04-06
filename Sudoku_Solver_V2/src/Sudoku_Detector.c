@@ -2,8 +2,8 @@
 #include <stdbool.h>
 
 /*when try to switch board sizes, you should modify lines 5,6 accrodingly*/
-#define BoardSize 49
-#define BoxSize 7
+#define BoardSize 36
+#define BoxSize 6
 
 bool isSudoku(int matrix[][BoardSize]) {
     for (int i = 0; i < BoardSize; i++) {
@@ -82,7 +82,7 @@ void main() {
     if (flag == 0) {
         printf("All %d Sudoku solutions are valid.\n", num - 1);
     } else {
-        printf("One or more Sudoku solutions are invalid.\n");
+        printf("The Sudoku solution is invalid.\n");
     }
 
     fclose(file);

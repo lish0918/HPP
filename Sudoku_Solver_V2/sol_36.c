@@ -71,7 +71,7 @@ void ReadBoardFromFile(int board[BoardSize * BoardSize], FILE *file) {
 int Solve(int board[BoardSize * BoardSize], int level) {
     int x = 0;
     int y = 0;
-    if (IfSolve(board, &x, &y) || solution_found){
+    if (IfSolve(board, &x, &y)){
         return 1;
     }
 
