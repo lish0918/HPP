@@ -4,14 +4,15 @@
 #include <omp.h>
 #include <string.h>
 
-/*when try to switch board sizes, you should modify lines 8,9,120 accrodingly*/
+/*when try to switch board sizes, you should modify lines 8,9,113 accrodingly*/
 #define BoardSize 36
 #define BoxSize 6
+#define Threshold 200
 
-int solution_found = 0;
-int solution[BoardSize * BoardSize];
+//int solution_found = 0;
+char solution[BoardSize * BoardSize];
 
-int DuplicateNumbersinRow(int board[], int x, int num) {
+int DuplicateNumbersinRow(char board[], int x, int num) {
     for (int y = 0; y < BoardSize; y++) {
         if (board[x * BoardSize + y] == num) {
             return 1;
@@ -20,7 +21,7 @@ int DuplicateNumbersinRow(int board[], int x, int num) {
     return 0;
 }
 
-int DuplicateNumbersinCol(int board[], int y, int num) {
+int DuplicateNumbersinCol(char board[], int y, int num) {
     for (int x = 0; x < BoardSize; x++) {
         if (board[x * BoardSize + y] == num) {
             return 1;
@@ -29,7 +30,7 @@ int DuplicateNumbersinCol(int board[], int y, int num) {
     return 0;
 }
 
-int DuplicateNumbersinBox(int board[], int startRow, int startCol, int num) {
+int DuplicateNumbersinBox(char board[], int startRow, int startCol, int num) {
     for (int x = 0; x < BoxSize; x++) {
         for (int y = 0; y < BoxSize; y++) {
             if (board[(startRow + x) * BoardSize + (startCol + y)] == num) {
@@ -40,7 +41,7 @@ int DuplicateNumbersinBox(int board[], int startRow, int startCol, int num) {
     return 0;
 }
 
-int ValidateBoard(int board[], int x, int y, int num) {
+int ValidateBoard(char board[], int x, int y, int num) {
     if (DuplicateNumbersinRow(board, x, num) || DuplicateNumbersinCol(board, y, num) ||
         DuplicateNumbersinBox(board, x - x % BoxSize, y - y % BoxSize, num)) {
         return 0;
@@ -48,7 +49,7 @@ int ValidateBoard(int board[], int x, int y, int num) {
     return 1;
 }
 
-int Solve(int board[], int unAssignInd[], int N_unAssign, int level) {
+int Solve(char board[], int unAssignInd[], int N_unAssign, int level) {
     if (N_unAssign == 0) {
         return 1;
     }
@@ -56,43 +57,35 @@ int Solve(int board[], int unAssignInd[], int N_unAssign, int level) {
     int x = index / BoardSize;
     int y = index % BoardSize;
 
-    #pragma omp taskgroup
-    {
-        for (int val = 1; val <= BoardSize; val++) {
-            if (ValidateBoard(board, x, y, val)) {
-                #pragma omp task firstprivate(board, x, y, val, level) shared(solution, solution_found)
-                {
-                    int *copy_board;
-                    copy_board = (int *)malloc(BoardSize * BoardSize * sizeof(int));
-                    memcpy(copy_board, board, BoardSize * BoardSize * sizeof(int));
-                    copy_board[x * BoardSize + y] = val;
-                    if (Solve(copy_board, unAssignInd, N_unAssign - 1, level + 1)) {
-                        #pragma omp critical
-                        {
-                            if (!solution_found) {
-                                solution_found = 1;
-                                memcpy(solution, copy_board, BoardSize * BoardSize * sizeof(int));
-                            }
-                        }
-                        #pragma omp cancel taskgroup
-                    }
-                    else{
-                        free(copy_board);
-                    }
+    for (int val = 1; val <= BoardSize; val++) {
+        if (ValidateBoard(board, x, y, val)) {
+            #pragma omp task firstprivate(board, x, y, val, level) shared(solution) if(level <= Threshold)
+            {
+                char *copy_board;
+                copy_board = (char *)malloc(BoardSize * BoardSize * sizeof(char));
+                memcpy(copy_board, board, BoardSize * BoardSize * sizeof(char));
+                copy_board[x * BoardSize + y] = val;
+                if (Solve(copy_board, unAssignInd, N_unAssign - 1, level + 1)) {                 
+                    memcpy(solution, copy_board, BoardSize * BoardSize * sizeof(char));
+                    #pragma omp cancel taskgroup
+                }
+                else{
+                    free(copy_board);
                 }
             }
         }
-        #pragma omp taskwait 
     }
+    #pragma omp taskwait
+        
     return 0;
 }
 
-void ReadBoardFromFile(int board[], int unAssignInd[], int *N_unAssign, FILE *file) {
+void ReadBoardFromFile(char board[], int unAssignInd[], int *N_unAssign, FILE *file) {
     *N_unAssign = 0; // Initialize the number of unassigned cells
 
     for (int x = 0; x < BoardSize; x++) {
         for (int y = 0; y < BoardSize; y++) {
-            if (fscanf(file, "%d", &board[x * BoardSize + y]) != 1) {
+            if (fscanf(file, "%hhd", &board[x * BoardSize + y]) != 1) {
                 return;
             }
             if (board[x * BoardSize + y] == 0) {
@@ -102,7 +95,7 @@ void ReadBoardFromFile(int board[], int unAssignInd[], int *N_unAssign, FILE *fi
     }
 }
 
-void WriteBoardToFile(int board[], FILE *file) {
+void WriteBoardToFile(char board[], FILE *file) {
     for (int i = 0; i < BoardSize; i++) {
         for (int j = 0; j < BoardSize; j++) {
             fprintf(file, "%2d ", board[i * BoardSize + j]);
@@ -125,7 +118,7 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    int board[BoardSize * BoardSize];
+    char board[BoardSize * BoardSize];
     int unAssignInd[BoardSize * BoardSize];
     int N_unAssign = 0;
 
@@ -144,9 +137,12 @@ int main(int argc, char** argv) {
     ReadBoardFromFile(board, unAssignInd, &N_unAssign, input_file);
 
     #pragma omp parallel
-	#pragma omp single nowait
+	#pragma omp single
     {
-        Solve(board, unAssignInd, N_unAssign, 1); 
+        #pragma omp taskgroup
+        {
+            Solve(board, unAssignInd, N_unAssign, 1); 
+        }
     }
     WriteBoardToFile(solution, output_file);
 

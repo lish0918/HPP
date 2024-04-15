@@ -78,7 +78,7 @@ void SwapBoard(int board[BoardSize][BoardSize]) {
     // Swap rows and columns to get a new board
     // There are 25 ways to swap the rows and columns
     int choice[25][2] = {{0, 1}, {0, 2}, {0, 3}, {0, 4}, {1, 2}, {1, 3}, {1, 4}, {2, 3}, {2, 4}, {3, 4}, {5, 6}, {5, 7}, {5, 8}, {5, 9}, {6, 7}, {6, 8}, {6, 9}, {7, 8}, {7, 9}, {8, 9}, {10, 11}, {10, 12}, {10, 13}, {10, 14}, {11, 12}};
-    int numtoswap = rand() % 25; // The number of swaps
+    int numtoswap = rand() % 2; // The number of swaps
     for (int i = 0; i < numtoswap; i++) {
         if(rand() % 2 == 0){
             // Swap rows
