@@ -3,10 +3,10 @@
 #include <stdlib.h>
 
 /*when try to switch board sizes, you should modify lines 6,7,92 accrodingly*/
-#define BoardSize 36
-#define BoxSize 6
+#define BoardSize 49
+#define BoxSize 7
 
-int DuplicateNumbersinRow(int board[], int x, int num) {
+int DuplicateNumbersinRow(char board[], int x, int num) {
     for (int y = 0; y < BoardSize; y++) {
         if (board[x * BoardSize + y] == num) {
             return 1;
@@ -15,7 +15,7 @@ int DuplicateNumbersinRow(int board[], int x, int num) {
     return 0;
 }
 
-int DuplicateNumbersinCol(int board[], int y, int num) {
+int DuplicateNumbersinCol(char board[], int y, int num) {
     for (int x = 0; x < BoardSize; x++) {
         if (board[x * BoardSize + y] == num) {
             return 1;
@@ -24,7 +24,7 @@ int DuplicateNumbersinCol(int board[], int y, int num) {
     return 0;
 }
 
-int DuplicateNumbersinBox(int board[], int startRow, int startCol, int num) {
+int DuplicateNumbersinBox(char board[], int startRow, int startCol, int num) {
     for (int x = 0; x < BoxSize; x++) {
         for (int y = 0; y < BoxSize; y++) {
             if (board[(startRow + x) * BoardSize + (startCol + y)] == num) {
@@ -35,7 +35,7 @@ int DuplicateNumbersinBox(int board[], int startRow, int startCol, int num) {
     return 0;
 }
 
-int ValidateBoard(int board[], int x, int y, int num) {
+int ValidateBoard(char board[], int x, int y, int num) {
     if (DuplicateNumbersinRow(board, x, num) || DuplicateNumbersinCol(board, y, num) ||
         DuplicateNumbersinBox(board, x - x % BoxSize, y - y % BoxSize, num)) {
         return 0;
@@ -43,7 +43,7 @@ int ValidateBoard(int board[], int x, int y, int num) {
     return 1;
 }
 
-int Solve(int board[], int unAssignInd[], int N_unAssign) {
+int Solve(char board[], int unAssignInd[], int N_unAssign) {
     if (N_unAssign == 0) {
         return 1;
     }
@@ -62,12 +62,12 @@ int Solve(int board[], int unAssignInd[], int N_unAssign) {
     return 0;
 }
 
-void ReadBoardFromFile(int board[], int unAssignInd[], int *N_unAssign, FILE *file) {
+void ReadBoardFromFile(char board[], int unAssignInd[], int *N_unAssign, FILE *file) {
     *N_unAssign = 0; // Initialize the number of unassigned cells
 
     for (int x = 0; x < BoardSize; x++) {
         for (int y = 0; y < BoardSize; y++) {
-            if (fscanf(file, "%d", &board[x * BoardSize + y]) != 1) {
+            if (fscanf(file, "%hhd", &board[x * BoardSize + y]) != 1) {
                 return;
             }
             if (board[x * BoardSize + y] == 0) {
@@ -77,7 +77,7 @@ void ReadBoardFromFile(int board[], int unAssignInd[], int *N_unAssign, FILE *fi
     }
 }
 
-void WriteBoardToFile(int board[], FILE *file) {
+void WriteBoardToFile(char board[], FILE *file) {
     for (int i = 0; i < BoardSize; i++) {
         for (int j = 0; j < BoardSize; j++) {
             fprintf(file, "%2d ", board[i * BoardSize + j]);
@@ -89,7 +89,7 @@ void WriteBoardToFile(int board[], FILE *file) {
 
 int main() {
 
-    FILE *input_file = fopen("file/36_hard.txt", "r");
+    FILE *input_file = fopen("file/49_medium.txt", "r");
     FILE *output_file = fopen("sudoku_solutions.txt", "w");
 
     if (input_file == NULL || output_file == NULL) {
@@ -97,7 +97,7 @@ int main() {
         return 1;
     }
 
-    int board[BoardSize * BoardSize];
+    char board[BoardSize * BoardSize];
     int unAssignInd[BoardSize * BoardSize];
     int N_unAssign = 0;
 

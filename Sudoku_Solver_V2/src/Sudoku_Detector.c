@@ -2,8 +2,8 @@
 #include <stdbool.h>
 
 /*when try to switch board sizes, you should modify lines 5,6 accrodingly*/
-#define BoardSize 36
-#define BoxSize 6
+#define BoardSize 49
+#define BoxSize 7
 
 bool isSudoku(int matrix[][BoardSize]) {
     for (int i = 0; i < BoardSize; i++) {
@@ -56,7 +56,7 @@ void ReadBoardFromFile(int board[BoardSize][BoardSize], int unAssignInd[], int *
 }
 
 void main() { 
-    FILE *file = fopen("sudoku_solutions.txt", "r");
+    FILE *file = fopen("sudoku_solutions.txt", "r"); //
     if (file == NULL) {
         printf("Failed to open file.\n");
         return;

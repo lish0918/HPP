@@ -5,9 +5,9 @@
 #include <string.h>
 
 /*when try to switch board sizes, you should modify lines 8,9,113 accrodingly*/
-#define BoardSize 36
-#define BoxSize 6
-#define Threshold 200
+#define BoardSize 25
+#define BoxSize 5
+#define Threshold 100
 
 //int solution_found = 0;
 char solution[BoardSize * BoardSize];
@@ -66,7 +66,7 @@ int Solve(char board[], int unAssignInd[], int N_unAssign, int level) {
                 memcpy(copy_board, board, BoardSize * BoardSize * sizeof(char));
                 copy_board[x * BoardSize + y] = val;
                 if (Solve(copy_board, unAssignInd, N_unAssign - 1, level + 1)) {                 
-                    memcpy(solution, copy_board, BoardSize * BoardSize * sizeof(char));
+                    memcpy(solution, copy_board, BoardSize * BoardSize * sizeof(char));                        
                     #pragma omp cancel taskgroup
                 }
                 else{
@@ -76,7 +76,7 @@ int Solve(char board[], int unAssignInd[], int N_unAssign, int level) {
         }
     }
     #pragma omp taskwait
-        
+
     return 0;
 }
 
@@ -110,7 +110,7 @@ int main(int argc, char** argv) {
     if(argc != 2) {printf("Usage: %s n_threads\n", argv[0]); return -1; }
     int n_threads = atoi(argv[1]);
 
-    FILE *input_file = fopen("file/36_hard.txt", "r");
+    FILE *input_file = fopen("file/25_hard_3.txt", "r");
     FILE *output_file = fopen("sudoku_solutions.txt", "w");
 
     if (input_file == NULL || output_file == NULL) {
@@ -141,7 +141,7 @@ int main(int argc, char** argv) {
     {
         #pragma omp taskgroup
         {
-            Solve(board, unAssignInd, N_unAssign, 1); 
+            Solve(board, unAssignInd, N_unAssign, 1);
         }
     }
     WriteBoardToFile(solution, output_file);
